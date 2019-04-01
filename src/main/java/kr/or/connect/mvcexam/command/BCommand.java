@@ -4,5 +4,5 @@ import org.springframework.ui.Model;
 
 public interface BCommand {
 	
-	void execute(Model model);
+	public void execute(Model model);
 }
