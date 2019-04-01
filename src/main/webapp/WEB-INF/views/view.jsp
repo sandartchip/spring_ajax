@@ -56,5 +56,8 @@
 			<td><%= data_mod_date %></td>
 		</tr>
 	</table>
+	
+	<a href="delete?content_id=<%=content_id%>">DELETE</a>
+	<a href="modify&content_id=<%=content_id%>">MODIFY</a>
 </body>
 </html>

@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import kr.or.connect.mvcexam.command.BCommand;
 import kr.or.connect.mvcexam.command.BContentCommand;
+import kr.or.connect.mvcexam.command.BDeleteCommand;
 import kr.or.connect.mvcexam.command.BListCommand;
+import kr.or.connect.mvcexam.command.BWriteCommand;
 
 @Controller
 public class BoardController {
@@ -44,4 +46,30 @@ public class BoardController {
 		System.out.println("view 호출");
 		return "view";
 	} 
+	
+	@RequestMapping("/write_view")
+	public String write_save(Model model) {
+		return "write_view";
+	}
+	
+	@RequestMapping("/write")
+	public String write(HttpServletRequest request, Model model) {
+		System.out.println("write()");
+		
+		model.addAttribute("write_request", request);   
+		command = new BWriteCommand();
+		command.execute(model);
+		
+		return "redirect:list";
+	}
+	
+	@RequestMapping("/delete")
+	public String delete(HttpServletRequest request, Model model) {
+		System.out.println("--delete()--");
+		
+		model.addAttribute("delete_request", request);
+		command = new BDeleteCommand();
+		command.execute(model);
+		return "redirect:list"; 
+	}
 }

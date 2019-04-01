@@ -32,6 +32,6 @@
 			</tbody>
 		</table>
 	</div> 
-	<!-- <a href="/write_view">등록 페이지</a> -->
+	<a href="write_view">등록 페이지</a> 
 </body>
 </html>
