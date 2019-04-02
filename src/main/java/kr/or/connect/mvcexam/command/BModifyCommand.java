@@ -26,10 +26,14 @@ public class BModifyCommand implements BCommand{
 		String title = request.getParameter("title");
 		String content = request.getParameter("content");
 		
-		
 		BoardDAO dao = new BoardDAO();
 		System.out.println(content_id +" "+ title + " "+ content);
 		dao.modify(content_id, title, content);
 	}
 
 }
+
+
+/*
+ * 사용자가 컨트롤러 조작 -> 컨트롤러는 모델 
+ */

@@ -14,7 +14,6 @@ public class BWriteCommand implements BCommand{
 	@Override
 	public void execute(Model model) {
 		
-		
 		Map<String, Object> board_map = model.asMap();
 		HttpServletRequest request_board = (HttpServletRequest) board_map.get("write_request");  //form에서 Request paramete로  title, content 
 		

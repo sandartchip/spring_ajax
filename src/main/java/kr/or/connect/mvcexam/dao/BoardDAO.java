@@ -97,7 +97,7 @@ public class BoardDAO {
 				content_vo.setRegDate(regDate);
 				content_vo.setModDate(modDate);
 				content_vo.setContent_id(content_id);   
-			} 
+			} //리퀘스트 파라미터에
 
 		} catch(SQLException e) {
 			

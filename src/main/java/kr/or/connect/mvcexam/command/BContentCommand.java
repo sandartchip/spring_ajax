@@ -27,5 +27,6 @@ public class BContentCommand implements BCommand{
 		BoardVO vo = dao.contentView(content_id);
 		
 		model.addAttribute("content", vo);
+		//model 객체에 content가 저장되있음
 	}
 }

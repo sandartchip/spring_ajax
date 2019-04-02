@@ -31,13 +31,20 @@
 <!DOCTYPE html>
 <html>
 	<head>
-	<meta charset="UTF-8">
-	<title>Insert title here</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<title>수정 페이지</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
 	</head>
 <body>
 
-	<h1>상세보기 페이지</h1>
+	<h1>수정 페이지</h1>
 		
+	<div class="page-header">
+		<h1>Tables</h1>
+	</div>
+	
+	
+	
 	<table>
 		<form action="modify" method="post">	
 			<input type="hidden" name="content_id" value="<%=content_id %>">	
@@ -62,5 +69,12 @@
 	</table>
 	
 	<a href="delete?content_id=<%=content_id%>">DELETE</a> 
+	
+	<a href="write_view">등록 페이지</a> 
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	
+	<!-- 모든 컴파일된 플러그인을 포함합니다. -->
+	<script src="js/bootstrap.min.js"></script>
+	<!-- src 폴더에서 찾아 옴. -->
 </body>
 </html>
