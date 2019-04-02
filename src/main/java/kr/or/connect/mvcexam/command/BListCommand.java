@@ -15,6 +15,8 @@ public class BListCommand extends HttpServlet implements BCommand  {
     @Override
     public void execute(Model model) {
     	
+    	//리스트는 전달받을 파라미터 없으므로 HttpServletRequest 안써도 됨.
+    	
     	BoardDAO dao = new BoardDAO();
     	ArrayList<BoardVO> vo_list = dao.list();
     	
