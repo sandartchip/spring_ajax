@@ -5,11 +5,13 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import kr.or.connect.mvcexam.command.BCommand;
 import kr.or.connect.mvcexam.command.BContentCommand;
 import kr.or.connect.mvcexam.command.BDeleteCommand;
 import kr.or.connect.mvcexam.command.BListCommand;
+import kr.or.connect.mvcexam.command.BModifyCommand;
 import kr.or.connect.mvcexam.command.BWriteCommand;
 
 @Controller
@@ -48,7 +50,7 @@ public class BoardController {
 	} 
 	
 	@RequestMapping("/write_view")
-	public String write_save(Model model) {
+	public String write_view(Model model) {
 		return "write_view";
 	}
 	
@@ -71,5 +73,33 @@ public class BoardController {
 		command = new BDeleteCommand();
 		command.execute(model);
 		return "redirect:list"; 
+	}
+	
+	@RequestMapping("/modify_view")
+	public String modify_view(HttpServletRequest request, Model model) {
+		// 상세보기에서 content id 가져오기 위해  httpServletRequest 객체사용
+		
+		System.out.println("modify view!");
+		model.addAttribute("request", request); 
+		// request 파라미터로  수정할 content id 가지고 있는 request를 가져 옴.
+		// 모델에 해당 content id 가지고 있는 request 객체 만듬
+		
+		command = new BContentCommand();
+		command.execute(model);
+
+		// b content command로 넘어가면서 해당 content id 가진 모델 객체를 넘겨주고.
+		// 서비스 객체는		model.addAttribute("content", vo); 을 통해 모델에  게시글 객체를 전달.
+
+		return "modify_view"; // 게시글 객체를 modify view로 넘긴다.
+	}
+	
+	@RequestMapping(value="/modify", method=RequestMethod.POST)
+	public String modify(HttpServletRequest request, Model model) {
+		System.out.println("  modify()  ");
+		
+		model.addAttribute("modify_request", request);
+		command = new BModifyCommand();
+		command.execute(model);
+		return "redirect:list";
 	}
 }

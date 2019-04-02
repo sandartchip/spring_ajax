@@ -137,11 +137,44 @@ public class BoardDAO {
 			e1.printStackTrace();
 		}
 	}
-	public void delete(String content_id) {
-		PreparedStatement pstmt = null;
+	
+	public void modify(String content_id, String title, String content) {
+		
+		/* 현재 시간 구하기 */
+		String modDate;
+		long time = System.currentTimeMillis();
+		SimpleDateFormat dayTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String str = dayTime.format(new Date(time));
+		modDate = str;
+		/* 현재시간 업데이트 */
+		
+		String modify_sql =
+				"UPDATE board_table SET TITLE= ?, CONTENT=?, modDate=?  WHERE content_id=?";
+		
 		try {
 			conn = this.getConnection();
-			String query = "delete from board_table where content_id = ?";
+			pstmt = conn.prepareStatement(modify_sql);
+			pstmt.setString(1, title);
+			pstmt.setString(2, content);
+			pstmt.setString(3, modDate);
+			pstmt.setInt(4, Integer.parseInt(content_id));
+			int rn = pstmt.executeUpdate();
+		} catch(SQLException e) {
+			
+		} finally {
+			try {
+				if(resultSet != null) resultSet.close();
+				if(pstmt!= null) pstmt.close();
+				if(conn != null) conn.close(); 
+			} catch(Exception e2) {}
+		}
+	}
+	public void delete(String content_id) {
+		PreparedStatement pstmt = null;
+		String query = "delete from board_table where content_id = ?";
+		
+		try {
+			conn = this.getConnection();
 			pstmt = conn.prepareStatement(query);
 			pstmt.setInt(1,  Integer.parseInt(content_id));
 			int rn = pstmt.executeUpdate();
