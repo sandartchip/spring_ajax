@@ -38,7 +38,10 @@
 						<tbody>
 							<tr>
 								<td class="t_header">글 제목</td>
-								<td class="t_body"><input type="text" name="title" value="${content.title}"> </td>
+								<td class="t_body">
+									<input type="text" name="title" value="${content.title}"
+									style="width:100%;"> 
+								</td>
 							</tr>
 							<tr>
 								<td class="t_header">글 내용</td>
@@ -56,25 +59,36 @@
 						<input type="hidden" name="content_id" value="${content.content_id}">
 						<!-- request 객체에  파라미터 값 넘기기 -->
 						
-						<button type="submit" class="btn btn-lg btn-default btn-sm"/>
+						<button type="submit" class="btn btn-lg btn-default btn-sm">
 							MODIFY
 						</button>
 
 						<button class="btn btn-lg btn-default btn-sm" 
-								type="submit"
-								href="list">CANCEL</button>
+								type="button"
+								onclick="location.href='list'">CANCEL</button>
 					</div>
 				</form>
 			</div>
 		</div>
 		
 		<script>
+			function trim(value) {
+				 value = value.replace(/^\s+/, ""); // 왼쪽 공백 제거
+				 value = value.replace(/\s+$/g, "");//오른쪽 공백 제거
+				 value = value.replace(/\n/g, "");//행바꿈제거
+				 value = value.replace(/\r/g, "");//엔터제거 
+	
+				 return value;
+			}
 			function formCheck(){
 				var title = document.forms[0].title.value; 
 				var content = document.forms[0].content.value;
 				
+				title = trim(title);
+				content = trim(content);			//공백 문자제거
+				
 				if(title.length==0) 
-					alert("제목 업음");
+					alert("제목 없음");
 				if(content.length ==0)
 					alert("내용 없음");
 				if(title.length>80)
