@@ -4,8 +4,7 @@
 <%@ taglib prefix="c"   uri="http://java.sun.com/jsp/jstl/core" %>
 <% 
 	request.setCharacterEncoding("utf-8");
-	response.setContentType("text/html;charset=UTF-8");
-	
+	response.setContentType("text/html;charset=UTF-8");	
 	/*
 
 	JSTL의 EL구문 쓰면 getAttribute 안 해줘도 됨.
@@ -33,18 +32,24 @@
 				width:20%;
 			}
 			.content_container {
-				width: 70%;
-				margin: 0 auto;
+				width: 80%;  				
+				margin: 0 auto; <!-- container 내부에서 중간정렬 시키기 위해-->
 				margin-top:30px;
 			}
+
 			.t_body {
 				width:80%;
 			}
 		</style>
 	</head>
 <body>
+
 	<div class="container">
-		<div class="content_container col-md-6">
+		<div class="page-header">
+			<h1>Board</h1>
+		</div>
+		
+		<div class="content_container">
 			<table class="table table-bordered table-hover active"> 
 				<tbody>
 					<tr>
@@ -65,21 +70,27 @@
 					</tr>
 				</tbody>
 			</table>
+			
+			<div class="footer" style="text-align:center">
+				<button type="button"
+						class="btn btn-lg btn-default btn-sm"
+						onclick="location.href='list'">
+					LIST
+				</button>
+		
+				<button type="button"
+						class="btn btn-lg btn-default btn-sm"
+						onclick="location.href='modify_view?content_id=${content.content_id}'">
+					MODIFY
+				</button>
+				
+				<button type="button"
+						class="btn btn-lg btn-default btn-sm"
+						onclick="location.href='delete?content_id=${content.content_id}'">
+					DELETE				
+				</button>	
+			</div>
 		</div>
-	</div>
-	
-	<div class="footer" style="text-align:center">
-		<button type="button" 
-				class="btn btn-lg btn-default btn-sm" 
-				onclick="location.href= 'delete?content_id=${content.content_id}'" 
-				style="margin-right:10px">
-			DELETE
-		</button>
-		<button type="button"
-				class="btn btn-lg btn-default btn-sm"
-				onclick="location.href= 'modify_view?content_id=${content.content_id}'">
-			MODIFY
-		</button>
 	</div>
 
 	<!--  jQuery (부트스트랩의 자바스크립트 플러그인을 위해 필요함) -->	

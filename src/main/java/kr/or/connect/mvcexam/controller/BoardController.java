@@ -67,6 +67,7 @@ public class BoardController {
 	
 	@RequestMapping("/delete")
 	public String delete(HttpServletRequest request, Model model) {
+		//content id 넘겨받기 위해 HttpServletRequest 객체 사용.
 		System.out.println("--delete()--");
 		
 		model.addAttribute("delete_request", request);
@@ -79,7 +80,7 @@ public class BoardController {
 	public String modify_view(HttpServletRequest request, Model model) {
 		// 상세보기에서 content id 가져오기 위해  HttpServletRequest 객체사용
 		
-		System.out.println("modify view!");
+		System.out.println("modify view !");
 		model.addAttribute("request", request); 
 		// request 파라미터로  수정할 content id 가지고 있는 request를 가져 옴.
 		// 모델에 해당 content id 가지고 있는 request 파라미터를 추가해준다.

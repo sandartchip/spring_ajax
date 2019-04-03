@@ -9,6 +9,8 @@
 		<style>
 			.content_container {
 				margin-top:30px;
+				width:80%;
+				margin: 0 auto;
 			}
 			.t_header {
 				background-color: gray;
@@ -29,6 +31,9 @@
 		해당 리퀘스트  객체를 BWriteCommand에서 받는다. -->
 	<body>
 		<div class="container">
+			<div class="page-header">
+				<h1>Board</h1>
+			</div>
 			<div class="content_container">
 				<form action="write" method="post" onsubmit="return formCheck();"> 
 					<table class="table table-bordered table-hover active">
@@ -36,21 +41,38 @@
 							<tr>
 								<td class="t_header">제목</td>
 								<td class="t_body"> 
-									<input type="text" name="title"/> 
+									<input type="text" name="title" style="width:100%"/> 
 								</td>
 							</tr>
 							<tr>
 								<td class="t_header">내용</td>				
-								<td class="t_body"> 
-									<textarea type="text" cols="40" name="content" /> 
+								<td class="t_body" style="height:500px"> 
+									<textarea type="text" 
+											cols="40" 
+											name="content" 
+											style="height:490px; width:100%">
+									</textarea> 
 								</td>
 							</tr>
 						</tbody>
 					</table>
-					<button type="submit" value="저장" />	
+					
+					<div class="footer" style="text-align:center">
+						<button class="btn btn-lg btn-default btn-sm"
+							type="submit" style="text-align:center" onclick="location.href='list'">CANCEL</button>
+						<button class="btn btn-lg btn-default btn-sm"
+							type="submit" style="text-align:center">SAVE</button>
+					</div>
 				</form> 
-			</div>
-		</div>
+			</div> 
+		</div> <!--  end of container -->
+		
+		<!-- <div class="alert alert-warning alert-dismissible fade show" role="alert">
+		  <strong>Holy guacamole!</strong> You should check in on some of those fields below.
+		  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+		    <span aria-hidden="true">&times;</span>
+		  </button>
+		</div>-->
 
 		<script>
 			function formCheck(){
@@ -58,7 +80,7 @@
 				var content = document.forms[0].content.value;
 				
 				if(title.length==0) 
-					alert("제목 업음");
+					alert("제목 없음");
 				if(content.length ==0)
 					alert("내용 없음");
 				if(title.length>80)

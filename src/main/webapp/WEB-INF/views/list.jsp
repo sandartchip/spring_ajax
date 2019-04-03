@@ -26,14 +26,13 @@
 </head>
 
 <body>
-	<!-- 
-		<h3>게시판</h3>
-	 -->
+
 	<div class="container">
+		<div class="page-header">
+			<h1>Board</h1>
+		</div>
 		
 		<div class="header_div">
-		
-			<h3 style="text-align: center">게시판</h3>
 			<a href="write_view" >등록 페이지</a>
 		</div>
 		
@@ -41,8 +40,8 @@
 			<table class="table table-striped table-bordered table-hover active">
 				<thead> 
 					<tr>
-						<th width="20%" style="text-align:center">글 번호</th>
-						<th width="80%" style="text-align:center">글 제목</th>
+						<th width="15%" style="text-align:center">글 번호</th>
+						<th width="85%" style="text-align:center">글 제목</th>
 					</tr>
 				</thead>
 				<tbody>		

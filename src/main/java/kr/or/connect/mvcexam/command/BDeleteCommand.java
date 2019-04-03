@@ -19,6 +19,8 @@ public class BDeleteCommand implements BCommand{
 
 		HttpServletRequest delete_request = (HttpServletRequest) board_map.get("delete_request");
 		//map형태로 받아 온 model 객체에서 delete request형만 따로 받아온다.
+		//content id 값 받아오기 위해
+		//http servlet request 객체 사용
 		
 		content_id = delete_request.getParameter("content_id");
 		
