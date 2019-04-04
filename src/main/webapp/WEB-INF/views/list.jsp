@@ -55,6 +55,51 @@
 			</table>
 		</div>
 	</div>
+	
+	<%
+		
+	
+	%>
+	<div class="page_footer"> <!--  페이지를 표시하기 위한 footer -->
+		<!-- 컨트롤러에서 받아온 page_list_maker로 하단에 표시.  -->
+		<!-- prev 버튼 -->
+		
+		<!--  
+			이전 페이지 버튼 누르면 1~10까지  
+			11~20까지 표시하다가
+			다음페이지 누르면
+			21~30 으로 표시.
+		-->	
+		<!--  시작 번호:startPage to  endPage -->
+		
+		<ul>
+			<c:if test="${ page_list_maker.prev }"> 
+				<li style="float:left; list-style-type:none; padding-right:10px">
+					<a href="<c:url value='list?pageNO=${page_list_maker.startPage-1}'/>"> 이전 페이지 </a>
+				</li> <!--  리스트 & pageMaker를 다시 들고 온다. pageMaker-->
+			</c:if>
+			<c:forEach var="page_index" begin="${page_list_maker.startPage}" end="${page_list_maker.endPage}">
+			 	<li style="float:left; list-style-type:none; padding-right:10px">
+			 		<a href="<c:url value='list?pageNO=${page_index}'/>"> ${page_index }</a>  
+			 	</li>
+		 	</c:forEach>
+		 	<c:if test="${ page_list_maker.next }">
+		 		<li style="float:left; list-style-type:none;">
+		 			<a href="<c:url value='list?pageNO=${page_list_maker.endPage+1}' />">다음 페이지</a>
+		 		</li>
+		 	</c:if>
+	 	</ul>
+	 	
+		<!--
+			int curPage;    //현재 페이지 번호
+			int pagePerNum; //1페이지당 몇갠지
+	 
+		 -->
+		 
+		<!-- 컨트롤러에서 넘어 온 페이지 Maker 사용해서 페이지 리스트 만듬-->
+		
+		<!-- next 버튼 -->
+	</div>
 	 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 	

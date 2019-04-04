@@ -16,6 +16,7 @@ public class BContentCommand implements BCommand{
 		Map<String, Object> map = model.asMap(); //map에서 request 파라미터 받아오기 위해 map형태로 모델을 바꿈
 		
 		HttpServletRequest request = (HttpServletRequest) map.get("request"); 
+		// 모델 객체에서 데이터 가져옴.
 		//  모델 객체에 이미 "request"가 셋 되어 있고 그 리퀘스트 객체를 가져온다.
 		// 그 리퀘스트 객체에는 content id가 있다.
 		
