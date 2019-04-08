@@ -153,7 +153,7 @@ public class BoardController {
 		command = new BWriteCommand();
 		command.execute(model);
 		
-		String return_url;
+		
 //		return_url =list?pageNO=${page_list_maker.startPage-1}&search_text=${search_text}&
 		//search_type=${search_type}&start_date=${start_date}&end_date=${end_date};
 	
@@ -171,16 +171,12 @@ public class BoardController {
 		String search_type = (String) session.getAttribute("search_type");
 		Date start_date = (Date) session.getAttribute("start_date");
 		Date end_date   = (Date) session.getAttribute("end_date");
-		
-		StringBuffer sb = new StringBuffer();
-		sb.append("redirect:list?pageNO=");
-		sb.append(    ((Integer)((page_maker.getStartPage()) -1)).toString());
-		
-		
+		 
 		System.out.println("보존 검색어??"+search_text);
 		String encode_search_text = URLEncoder.encode(search_text, "UTF-8");
 
-		return_url = "redirect:list?pageNO="+((page_maker.getStartPage()) -1)+
+		
+		String return_url = "redirect:list?pageNO="+((page_maker.getStartPage()) -1)+
 				"&search_text="+encode_search_text + "&search_type="+search_type+
 				"&start_date="+start_date + "&end_date="+end_date;
 		System.out.println("redirect_url + " + return_url);
@@ -205,14 +201,22 @@ public class BoardController {
 		
 		PageMaker page_maker;
 		page_maker = (PageMaker) session.getAttribute("page_list_maker"); 
+
+		
 		String pageNO;
 		String search_text = (String) session.getAttribute("search_text");
 		String search_type = (String) session.getAttribute("search_type");
 		Date start_date = (Date) session.getAttribute("start_date");
 		Date end_date   = (Date) session.getAttribute("end_date");
+		 
+		System.out.println("보존 검색어??"+search_text);
+		String encode_search_text = URLEncoder.encode(search_text, "UTF-8");
+
 		
-		String return_url = "redirect:list?pageNO="+((page_maker.getStartPage()) -1)+"&search_text="+search_text + "&search_type="+search_type+
+		String return_url = "redirect:list?pageNO="+((page_maker.getStartPage()) -1)+
+				"&search_text="+encode_search_text + "&search_type="+search_type+
 				"&start_date="+start_date + "&end_date="+end_date;
+		System.out.println("redirect_url + " + return_url);
 		
 		return return_url; 
 	}
@@ -248,14 +252,22 @@ public class BoardController {
 		
 		PageMaker page_maker;
 		page_maker = (PageMaker) session.getAttribute("page_list_maker"); 
+
+		
 		String pageNO;
 		String search_text = (String) session.getAttribute("search_text");
 		String search_type = (String) session.getAttribute("search_type");
 		Date start_date = (Date) session.getAttribute("start_date");
 		Date end_date   = (Date) session.getAttribute("end_date");
+		 
+		System.out.println("보존 검색어??"+search_text);
+		String encode_search_text = URLEncoder.encode(search_text, "UTF-8");
+
 		
-		String return_url = "redirect:list?pageNO="+((page_maker.getStartPage()) -1)+"&search_text="+search_text + "&search_type="+search_type+
+		String return_url = "redirect:list?pageNO="+((page_maker.getStartPage()) -1)+
+				"&search_text="+encode_search_text + "&search_type="+search_type+
 				"&start_date="+start_date + "&end_date="+end_date;
+		System.out.println("redirect_url + " + return_url);
 		
 		return return_url; 
 	}

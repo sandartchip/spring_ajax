@@ -24,6 +24,11 @@
 			text-align: right;
 		}
 	</style>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js">
+	</script>
+	<script src="js/bootstrap.min.js"></script>
+
 </head>
 
 <body>
@@ -70,12 +75,12 @@
 			 	</select>
 			 	<!-- form에서 파라미터명은 name에 바인딩 되므로. search type = value값.으로 바인딩되서  넘어가겠지.-->
 			 	
-			 	<input type="text" name="search_text"/> 
+			 	<input type="text" name="search_text" class="search_text_input"/> 
 			 	<!-- input box에 있는 데이터는 get방식 파라미터로 넘어간다. -->
-			 	<input type="date" name="start_date" />
-			 	<input type="date" name="end_date" />
+			 	<input type="date" name="start_date" class="start_date_input"/>
+			 	<input type="date" name="end_date" class="end_date_input"/>
 			 	
-		 		<button type="submit">검색</button> 
+		 		<button type="submit" style="float:left">검색</button> 
 	 		</form>	
 	 	</div> 
 	 	
@@ -101,11 +106,48 @@
 		<!-- 컨트롤러에서 넘어 온 페이지 Maker 사용해서 페이지 리스트 만듬-->
 		<!-- next 버튼 -->
 	</div>
-	 
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 	
-	<!-- 모든 컴파일된 플러그인을 포함합니다. -->
-	<script src="js/bootstrap.min.js"></script>
+	
+	<script type="text/javascript">
+		var date_start_elems = document.getElementsByClassName('start_date_input');
+		var date_start_elem = date_start_elems[0];
+		
+		var date_end_elems = document.getElementsByClassName('end_date_input');
+		var date_end_elem = date_end_elems[0];
+		// ???????????왜 document 밖으로 빼야하지???
+		
+		var text_elems = document.getElementsByClassName('search_text_input');
+		var text_elem  = text_elems[0];
+		
+		console.log(date_start_elem);
+		console.log(date_end_elem);
+		console.log(text_elem);
+		
+		$(document).ready(function(){		
+
+			
+			$("select").change(function(){
+				console.log("hi!! change!!");
+				$(this).find("option:selected").each(function(){
+					 
+					var optionValue = $(this).attr("value");
+					console.log("선택 option"+optionValue);
+					if(optionValue=="date"){
+						
+						date_start_elem.style.display="inline";
+						date_end_elem.style.display = "inline";
+						text_elem.style.display = "none";
+						console.log(" date  선택");
+					}
+					else{
+						text_elem.style.display="inline";
+						date_start_elem.style.display="none";
+						date_end_elem.style.display = "none";
+					}
+				});
+			}).change();
+		});
+	</script>	
 	<!-- src 폴더에서 찾아 옴. -->
 </body>
 </html>
