@@ -80,7 +80,7 @@
 			 	<input type="date" name="start_date" class="start_date_input"/>
 			 	<input type="date" name="end_date" class="end_date_input"/>
 			 	
-		 		<button type="submit" style="float:left">검색</button> 
+		 		<button type="submit">검색</button> 
 	 		</form>	
 	 	</div> 
 	 	

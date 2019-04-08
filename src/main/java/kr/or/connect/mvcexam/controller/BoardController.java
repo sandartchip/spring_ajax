@@ -53,8 +53,12 @@ public class BoardController {
  
 		String start_date_s = request.getParameter("start_date");
 		String end_date_s = request.getParameter("end_date");
-
-		if(pageNo==null) pageNo="1";
+		System.out.println("pageNo " + pageNo);
+		
+		if(pageNo==null || pageNo.length()==0) {
+			pageNo="1";
+			System.out.println("no number");
+		}
 		if(search_keyword==null) search_keyword="";
 		if(search_type==null) search_type=""; // 초기호출. 파라미터 없을 때
 		
@@ -116,6 +120,8 @@ public class BoardController {
 		model.addAttribute("page_list_maker", page_list_maker); //page list maker를 넣음 
 		session.setAttribute("page_list_maker", page_list_maker);
 		
+		
+		/*  redirect 고려하지 않은 경우      */
 		 
 		return "list"; //list.jsp 로 페이지 page listMaker 보낸다.	
 	}

@@ -74,7 +74,7 @@
 			<div class="footer" style="text-align:center">
 				<button type="button"
 						class="btn btn-lg btn-default btn-sm"
-						onclick="location.href='list'">
+						onclick="location.href='list?pageNO=${page_index}&search_text=${search_text}&search_type=${search_type}&start_date=${start_date}&end_date=${end_date}'">
 					LIST
 				</button>
 		

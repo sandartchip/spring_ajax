@@ -65,7 +65,7 @@
 
 						<button class="btn btn-lg btn-default btn-sm" 
 								type="button"
-								onclick="location.href='list'">CANCEL</button>
+								onclick="location.href='list?pageNO=${page_index}&search_text=${search_text}&search_type=${search_type}&start_date=${start_date}&end_date=${end_date}'">CANCEL</button>
 					</div>
 				</form>
 			</div>
