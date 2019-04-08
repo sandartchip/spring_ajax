@@ -28,23 +28,33 @@ public class BListCommand extends HttpServlet implements BCommand  {
     	// 페이지 당 리스트 출력.
     	
     	//currentPageNum;
-    	
-    	int currentPageNum, numPerPage;
-    	
-    	Map<String, Object> model_map = model.asMap(); //모델에서 데이터 가져오기 위해 map형으로 바꾼다.
+    	Map<String, Object> model_map = model.asMap();
+
     	Criteria cur_page_info = (Criteria) model_map.get("pageVO"); //모델에서 Criteria형의 pageVO 객체 가져 온다.
-    	PageMaker pageMaker = (PageMaker) model_map.get("page_maker"); //페이지메이커 객체에 게시글 갯수 넣기 위해 가져옴.
+    	String search_keyword = (String) model_map.get("search_keyword"); 
+    	if(search_keyword==null) search_keyword="";//넘어온 파라미터 없는 경우
+    	System.out.println("---List Command ---: "+search_keyword);
+
     	System.out.println("-----PageMaker 생성---------------");
+    	
     	BoardDAO dao = new BoardDAO();
     	ArrayList<BoardVO> vo_list;
     	
     	int total_row_count;
 
     	try {
-			vo_list = dao.list(cur_page_info);
+			vo_list = dao.search_page(search_keyword, cur_page_info);
 			model.addAttribute("list_item", vo_list);   //DAO를 통해 DB처리한 데이터 받아와서 모델에 넣음.
-
-	    	total_row_count = dao.totalCount();
+			
+			if(search_keyword.length()==0) 	{ //검색 키워드 없는 경우.
+				total_row_count = dao.totalCount();
+			}
+			else {
+				total_row_count = dao.search_totalCount(search_keyword);
+			}
+	    	// 전체, 일부 처리 ok
+			//total_row_count = vo_list.size();
+			System.out.println("total count: " +total_row_count);
 			model.addAttribute("total_count", total_row_count);//DAO를 통해 얻어온 총 개수를 모델에 넣음.
 		} catch (SQLException e) {
 			e.printStackTrace();

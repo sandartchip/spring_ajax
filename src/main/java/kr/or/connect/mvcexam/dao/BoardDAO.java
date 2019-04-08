@@ -39,100 +39,23 @@ public class BoardDAO {
 		} 
 		return conn;   
 	} //END OF DBConnection
-	
-	public ArrayList<BoardVO> list(Criteria page_info) throws SQLException { 
-		// 표시할 페이지의 번호, 출력할 페이지의 갯수
-	 
-		ArrayList<BoardVO> vo_list = new ArrayList<BoardVO>();  
-		int pagePerNum = page_info.getPagePerNum(); //1페이지 당 게시물 갯수
-		int curPageNum = page_info.getPage(); //현재 페이지 번호
+
+	public int totalCount() throws SQLException { //list total count.
 		
-		//pagePerNum과 curPagenum 이용해서 계산.
-		
-		int start_content_num;
-		int end_content_num;
-		ResultSet resultSet = null;
-		int totalCount;
-		
-		totalCount = this.totalCount();
-		
-		start_content_num = (curPageNum-1) * pagePerNum;
-		
-		
-		// 1페이지 : 0행~9
-		// 2페이지: 10~19
-		
-		// 이거 아님. 게시글은 1번부터가 아니라 표시되는건 내림차순임.
-		// 단지 0~21을 21~0으로 순서만 바꾼 것
-		// 전체 갯수에서 빼주면 됨.
-		
-	  	System.out.println("시작 컨텐츠번호: "+start_content_num);
-//	  	System.out.println("끝 컨텐츠 번호: "+end_content_num);
-	  	System.out.println("======================================");
-	    
-		try {
-			conn = this.getConnection();
-			//String list_sql = "SELECT * FROM board_table"; //원래 SQL
-			
-			// 전체 게시물 받아오는걸 -> 현재 페이지의 시작 게시물 번호 to 끝 게시물 번호까지
-			String page_list_sql = 
-					"SELECT * FROM board_table ORDER BY content_id DESC LIMIT ?, ?"; 
- 
-			PreparedStatement page_pstmt=null;
-			
-			// 리스트로 몇 개 받아올지만 .
-			page_pstmt = conn.prepareStatement(page_list_sql);
-			page_pstmt.setInt(1, start_content_num);  // 현재 페이지의 시작 게시물 번호
-			page_pstmt.setInt(2, pagePerNum);    // 현재 페이지의  끝 게시물 번호까지
-			
-			resultSet = page_pstmt.executeQuery(); //해당 prepared statement에 쿼리문 실행. 
-			
-			while(resultSet.next()){ 
-				String title = resultSet.getString("title");
-				String content = resultSet.getString("content");
-				String regDate = resultSet.getString("regDate");
-				String modDate = resultSet.getString("modDate");
-				int content_id = resultSet.getInt("content_id"); 
-				
-				BoardVO data = new BoardVO();
-				data.setTitle(title);
-				data.setContent(content);
-				data.setRegDate(regDate);
-				data.setModDate(modDate);
-				data.setContent_id(content_id);  
-				vo_list.add(data);
-			}
-			
-			System.out.println("==========현재 페이지 ArrayList 조회==============");
-			for(BoardVO board: vo_list) {
-				System.out.println(vo_list);
-			}
-			
-		} catch(Exception e) {
-		}	finally {
-				if(resultSet != null) resultSet.close();
-				if(pstmt!= null) pstmt.close();
-				if(conn != null) conn.close();
-		} //end of finally
-		return vo_list;
-	} // end of list
-	
-	public int totalCount() throws SQLException {
-		Statement total_stmt=  null;
 		ResultSet total_result=null;
-		
+		Statement total_stmt = null;
 		try {
 			conn = this.getConnection();
 			//String list_sql = "SELECT * FROM board_table"; //원래 SQL
-			/* TOTAL COUNT */
+			// TOTAL COUNT 
 			System.out.println("최종 페이지 계산!!");
 			
+			total_stmt = null;
 			String total_count_sql = "SELECT COUNT(*) FROM board_table";
 			total_stmt = conn.createStatement();//Static한 SQL문 처리하는 Object
 			total_result=total_stmt.executeQuery(total_count_sql);
 			
 			while(total_result.next()) {
-				//System.out.println("ddd");
 				totalCount = total_result.getInt(1);
 			}
 		}
@@ -146,6 +69,159 @@ public class BoardDAO {
 		return totalCount;
 	}
 	
+	public ArrayList<BoardVO> search_page(String keyword, Criteria page_info) throws SQLException { 
+	
+		// 검색할 키워드를 파라미터로 받아 온다.
+		
+		// 검색 결과 게시물을 -> ArrayList로 만들어서 -> 새로운 vo_list에 -> 컨텐츠 리스트를 arrayList로 만들어서 리턴.
+	
+		ResultSet search_result=null;
+		PreparedStatement page_pstmt=null; //sql쿼리문이 아니라 DB랑 쿼리문 연결시켜준 Object.
+		ArrayList<BoardVO> vo_list= new ArrayList<BoardVO>();
+		
+		int pagePerNum = page_info.getPagePerNum(); //1페이지 당 게시물 갯수
+		int curPageNum = page_info.getPage(); //현재 페이지 번호
+		int start_content_num;    
+		// 하지만 검색에 따라 고려되어야 할 듯.
+		
+		start_content_num = (curPageNum-1) * pagePerNum;
+		
+		try {
+			conn = this.getConnection();
+			//String list_sql = "SELECT * FROM board_table"; //원래 SQL
+			/* TOTAL COUNT */
+			
+			if(keyword.length()==0) {
+				
+				System.out.println("--------검색 키워드 X-----------");
+				//키워드 없는 경우
+				
+				String page_list_sql = 
+						"SELECT * FROM board_table ORDER BY content_id DESC LIMIT ?, ?";
+				PreparedStatement list_page_pstmt=null;
+				
+				// 리스트로 몇 개 받아올지만 .
+				list_page_pstmt = conn.prepareStatement(page_list_sql);
+				list_page_pstmt.setInt(1, start_content_num);  // 현재 페이지의 시작 게시물 번호
+				list_page_pstmt.setInt(2, pagePerNum);    // 현재 페이지의  끝 게시물 번호까지
+				
+				resultSet = list_page_pstmt.executeQuery(); //해당 prepared statement에 쿼리문 실행. 
+				
+				while(resultSet.next()){ 
+					String title = resultSet.getString("title");
+					String content = resultSet.getString("content");
+					String regDate = resultSet.getString("regDate");
+					String modDate = resultSet.getString("modDate");
+					int content_id = resultSet.getInt("content_id"); 
+					
+					BoardVO data = new BoardVO();
+					data.setTitle(title);
+					data.setContent(content);
+					data.setRegDate(regDate);
+					data.setModDate(modDate);
+					data.setContent_id(content_id);  
+					vo_list.add(data);
+				}
+			}
+			else {
+				System.out.println("------검색 키워드 O !!--------------"+keyword);
+
+				String search_sql = "SELECT * FROM board_table WHERE title LIKE ? ORDER BY content_id DESC LIMIT ?, ? ";
+				page_pstmt = conn.prepareStatement(search_sql); 
+
+				page_pstmt.setString(1, "%"+keyword+"%");
+				page_pstmt.setInt(2, start_content_num);  // 현재 페이지의 시작 게시물 번호
+				page_pstmt.setInt(3, pagePerNum);    // 현재 페이지의  끝 게시물 번호까지
+				search_result = page_pstmt.executeQuery();
+				
+				/* 제목에 we를 포함하는 row 중에서 start content num번부터 페이지별컨텐츠 갯수 개까지!*/
+				/* select * from board_table이 아니라 select from board_table의 SUBSET으로 되어있어야 */
+				/* 가져 온 쿼리 결과 중에서  몇 부터 몇 까지 */
+				/* 해당 가져 온 쿼리 결과 중에서 -> DESC LIMIT로 */
+				/* 앞 SQL문에서는 SELECT * FROM board_table desc LIMIT로 처리가능했던걸*/
+				
+				//쿼리문 수행 자체를 안 한다. 
+				while(search_result.next()) {
+					
+					String title = search_result.getString("title");
+					String content = search_result.getString("content");
+					String regDate = search_result.getString("regDate");
+					String modDate = search_result.getString("modDate");
+					int content_id = search_result.getInt("content_id");  
+					
+					BoardVO data = new BoardVO();
+					data.setTitle(title);
+					data.setContent(content);
+					data.setRegDate(regDate);
+					data.setModDate(modDate);
+					data.setContent_id(content_id);  
+					vo_list.add(data);
+					
+					System.out.println("검색후 찾은 데이터 = "+data.getTitle());
+				}
+			}
+			/* 일부만 같아도 찾는 방법. */
+			
+			// 제목에 ~를 포함하면서
+			// 용연님 게시판 검색 쿼리 처리 때문에 그러는데욥  제목에 "we"를 포함시키는 것 중에 3~6번째 이런 식으로 쿼리문을 주고 싶은데.
+		}
+		catch(Exception e) {} 
+		finally {
+			
+			if(search_result != null) search_result.close();
+			if(page_pstmt   != null) page_pstmt.close();
+			if(conn != null) conn.close();
+		} //end of finally
+		return vo_list;
+	}
+	public int search_totalCount(String keyword) throws SQLException { 
+		/* 검색된 결과 쿼리의 갯수를 리턴. */
+		
+		ResultSet search_result=null;
+		PreparedStatement page_pstmt=null; //sql쿼리문이 아니라 DB랑 쿼리문 연결시켜준 Object.
+		
+		Statement total_stmt = null; 
+
+		int row_count=0;
+		String search_sql="";
+		
+		try {
+			conn = this.getConnection();
+			/* TOTAL COUNT */
+			System.out.println("---검색!!---"+keyword);
+	
+			search_sql = "SELECT COUNT(*) FROM board_table WHERE title LIKE ?";
+			page_pstmt = conn.prepareStatement(search_sql);
+			page_pstmt.setString(1, "%"+keyword+"%");
+			search_result = page_pstmt.executeQuery();
+			/*
+			 * 			
+			total_stmt = null;
+			String total_count_sql = "SELECT COUNT(*) FROM board_table";
+			total_stmt = conn.createStatement();//Static한 SQL문 처리하는 Object
+			total_result=total_stmt.executeQuery(total_count_sql);
+			
+			while(total_result.next()) {
+				totalCount = total_result.getInt(1);
+			} 
+			 */
+			
+			if(search_result.next()) 
+				row_count=search_result.getInt(1);
+			
+			System.out.println(" ----검색 결과 갯수----: "+row_count);
+		}
+		catch(Exception e) {} 
+		finally {
+			if(conn != null) conn.close();
+			if(search_result != null) search_result.close();
+			if(total_stmt   != null) total_stmt.close();
+			if(page_pstmt   != null) page_pstmt.close();
+		} //end of finally
+		return row_count;
+	}
+	
+
 	public BoardVO contentView(String content_id_str) {
 		BoardVO content_vo = new BoardVO();
 		String content_sql = "SELECT * FROM board_table WHERE content_id=" + content_id_str;

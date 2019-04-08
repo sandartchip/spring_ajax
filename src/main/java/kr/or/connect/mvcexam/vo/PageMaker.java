@@ -17,7 +17,7 @@ public class PageMaker {
 	public void calcData() {
 		// 하단에 페이지 생성하는데 필요한 정보들에 대한 계산 작업을 한다.
 		// prev, next, startPage, endPage를 계산.
-		// page_vo(현재페이지, 페이지당 게시물수) 정보, totalCount만  필요.
+		// page_vo(현재페이지 번호, 페이지당 게시물수) 정보, totalCount만  필요.
 		
         endPage = (int) (Math.ceil(page_vo.getPage() / (double) displayPageNum) * displayPageNum);
         
