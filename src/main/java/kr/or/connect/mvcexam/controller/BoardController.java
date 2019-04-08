@@ -1,5 +1,11 @@
 package kr.or.connect.mvcexam.controller;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -29,20 +35,56 @@ public class BoardController {
 	PageMaker page_list_maker;
 	
 	@RequestMapping("/list")  //브라우저의 요청을 받을 때
-	public String list(HttpServletRequest request, Model model) { //필요한 데이터 넘기기 위해 model 객체를 파라미터로 넘겨준다.
+	public String list(HttpServletRequest request, Model model) throws ParseException, UnsupportedEncodingException { //필요한 데이터 넘기기 위해 model 객체를 파라미터로 넘겨준다.
 		
 		/* list item, curPage, total Count만 바뀜. 나머지는 다 같다. */ 
 		
+		/* form으로 넘어온 데이터를 request로 받음.*/
+		request.setCharacterEncoding("UTF-8");
+		
 		String search_keyword = request.getParameter("search_text"); 
+		System.out.println("보존 search keyword?? "+search_keyword);
 		String pageNo = request.getParameter("pageNO");
+		String search_type = request.getParameter("search_type");
+		// UTF-8 줬는데 왜 안되지??
+		
+		Date start_date, end_date; 
+		HttpSession session = request.getSession(); //서블릿에서 세션 사용 위해 메서드 호출.
+ 
+		String start_date_s = request.getParameter("start_date");
+		String end_date_s = request.getParameter("end_date");
+
 		if(pageNo==null) pageNo="1";
 		if(search_keyword==null) search_keyword="";
+		if(search_type==null) search_type=""; // 초기호출. 파라미터 없을 때
+		
+		if(search_keyword.length()>0) {
+			URLDecoder.decode(request.getParameter("search_text"), "UTF-8");
+		}
+ 		if(search_type.equals("date")) {
+			System.out.println("start_date"+start_date_s);
+			System.out.println("end_date"+end_date_s);
+			
+			//String to Date
+			SimpleDateFormat transFormat = new SimpleDateFormat("yyyy-MM-dd"); 
+			java.util.Date util_start_date = transFormat.parse( start_date_s );
+			java.util.Date util_end_date =  transFormat.parse( end_date_s );
+			
+			start_date = new java.sql.Date(util_start_date.getTime());
+			end_date =   new java.sql.Date(util_end_date.getTime());
+			
+			model.addAttribute("start_date", start_date);
+			model.addAttribute("end_date", end_date);
+			
+			session.setAttribute("start_date", start_date);
+			session.setAttribute("end_date", end_date);
+		}
 		
 		model.addAttribute("search_keyword", search_keyword);
-		
-		HttpSession session = request.getSession(); //서블릿에서 세션 사용 위해 메서드 호출.
+		model.addAttribute("search_type", search_type);
 		
 		session.setAttribute("search_text", search_keyword);
+		session.setAttribute("search_type", search_type);
 
 		System.out.println("검색 키워드-Controller = "+ search_keyword);
 		
@@ -62,17 +104,20 @@ public class BoardController {
 		command.execute(model); 
 		// 서비스 단 갔다가 돌아 오면서 model 객체에 total_count 가져 올 것임.
 		
-		Map<String, Object> model_map = model.asMap(); 
-				
+		Map<String, Object> model_map = model.asMap();
+		
 		int totalCount = (int) model_map.get("total_count");
 		
 		/* 하단에 페이지 메이커 생성  */
 		page_list_maker.setPage_vo(paging_info);
 		page_list_maker.setTotalCount(totalCount);
 		page_list_maker.calcData();
-		model.addAttribute("page_list_maker", page_list_maker); //page list maker를 넣음 
 		
-		return "list"; //list.jsp 로 페이지 page listMaker 보낸다.
+		model.addAttribute("page_list_maker", page_list_maker); //page list maker를 넣음 
+		session.setAttribute("page_list_maker", page_list_maker);
+		
+		 
+		return "list"; //list.jsp 로 페이지 page listMaker 보낸다.	
 	}
 	
 	@RequestMapping("/view")
@@ -101,25 +146,75 @@ public class BoardController {
 	}
 	
 	@RequestMapping("/write")
-	public String write(HttpServletRequest request, Model model) {
+	public String write(HttpServletRequest request, Model model) throws UnsupportedEncodingException {
 		System.out.println("write()");
 		
 		model.addAttribute("write_request", request);   
 		command = new BWriteCommand();
 		command.execute(model);
 		
-		return "redirect:list";
+		String return_url;
+//		return_url =list?pageNO=${page_list_maker.startPage-1}&search_text=${search_text}&
+		//search_type=${search_type}&start_date=${start_date}&end_date=${end_date};
+	
+		
+		// 글 작성 후 session객체에 저장된 파라미터 들고 오기 위해
+		
+		// 리다이렉트 시킬 때 
+		request.setCharacterEncoding("UTF-8");
+		HttpSession session = request.getSession(); 
+		PageMaker page_maker;
+		page_maker = (PageMaker) session.getAttribute("page_list_maker");
+		
+		String pageNO;
+		String search_text = (String) session.getAttribute("search_text");
+		String search_type = (String) session.getAttribute("search_type");
+		Date start_date = (Date) session.getAttribute("start_date");
+		Date end_date   = (Date) session.getAttribute("end_date");
+		
+		StringBuffer sb = new StringBuffer();
+		sb.append("redirect:list?pageNO=");
+		sb.append(    ((Integer)((page_maker.getStartPage()) -1)).toString());
+		
+		
+		System.out.println("보존 검색어??"+search_text);
+		String encode_search_text = URLEncoder.encode(search_text, "UTF-8");
+
+		return_url = "redirect:list?pageNO="+((page_maker.getStartPage()) -1)+
+				"&search_text="+encode_search_text + "&search_type="+search_type+
+				"&start_date="+start_date + "&end_date="+end_date;
+		System.out.println("redirect_url + " + return_url);
+		
+		return return_url;
+		//return "redirect:list";
 	}
 	
 	@RequestMapping("/delete")
-	public String delete(HttpServletRequest request, Model model) {
+	public String delete(HttpServletRequest request, Model model) throws UnsupportedEncodingException {
 		//content id 넘겨받기 위해 HttpServletRequest 객체 사용.
 		System.out.println("--delete()--");
 		
 		model.addAttribute("delete_request", request);
 		command = new BDeleteCommand();
 		command.execute(model);
-		return "redirect:list"; 
+		
+		/* redirect */
+		
+		request.setCharacterEncoding("UTF-8");
+		HttpSession session = request.getSession(); 
+		
+		PageMaker page_maker;
+		page_maker = (PageMaker) session.getAttribute("page_list_maker"); 
+		String pageNO;
+		String search_text = (String) session.getAttribute("search_text");
+		String search_type = (String) session.getAttribute("search_type");
+		Date start_date = (Date) session.getAttribute("start_date");
+		Date end_date   = (Date) session.getAttribute("end_date");
+		
+		String return_url = "redirect:list?pageNO="+((page_maker.getStartPage()) -1)+"&search_text="+search_text + "&search_type="+search_type+
+				"&start_date="+start_date + "&end_date="+end_date;
+		
+		return return_url; 
 	}
 	
 	@RequestMapping("/modify_view")
@@ -141,12 +236,27 @@ public class BoardController {
 	}
 	
 	@RequestMapping(value="/modify", method=RequestMethod.POST)
-	public String modify(HttpServletRequest request, Model model) {
+	public String modify(HttpServletRequest request, Model model) throws UnsupportedEncodingException {
 		System.out.println("  modify()  ");
 		
 		model.addAttribute("modify_request", request);
 		command = new BModifyCommand();
 		command.execute(model);
-		return "redirect:list";
+		
+		request.setCharacterEncoding("UTF-8");
+		HttpSession session = request.getSession(); 
+		
+		PageMaker page_maker;
+		page_maker = (PageMaker) session.getAttribute("page_list_maker"); 
+		String pageNO;
+		String search_text = (String) session.getAttribute("search_text");
+		String search_type = (String) session.getAttribute("search_type");
+		Date start_date = (Date) session.getAttribute("start_date");
+		Date end_date   = (Date) session.getAttribute("end_date");
+		
+		String return_url = "redirect:list?pageNO="+((page_maker.getStartPage()) -1)+"&search_text="+search_text + "&search_type="+search_type+
+				"&start_date="+start_date + "&end_date="+end_date;
+		
+		return return_url; 
 	}
 }

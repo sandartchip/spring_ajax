@@ -1,14 +1,14 @@
 package kr.or.connect.mvcexam.dao;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-
+import java.util.ArrayList; 
 import kr.or.connect.mvcexam.vo.BoardVO;
 import kr.or.connect.mvcexam.vo.Criteria;
 
@@ -69,7 +69,64 @@ public class BoardDAO {
 		return totalCount;
 	}
 	
-	public ArrayList<BoardVO> search_page(String keyword, Criteria page_info) throws SQLException { 
+	public ArrayList<BoardVO> search_date_page(Date start_date, Date end_date, Criteria page_info) throws ParseException, SQLException{
+		Connection conn = null; 
+		PreparedStatement page_pstmt=null; //sql쿼리문이 아니라 DB랑 쿼리문 연결시켜준 Object.
+		ArrayList<BoardVO> vo_list= new ArrayList<BoardVO>();
+
+		System.out.println("------------날짜 검색으로 진입-----------");
+		
+		int pagePerNum = page_info.getPagePerNum(); //1페이지 당 게시물 갯수
+		int curPageNum = page_info.getPage(); //현재 페이지 번호
+		int start_content_num; 
+		
+		SimpleDateFormat transFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
+		String page_list_sql;
+		ResultSet resultSet=null;
+		
+		
+		start_content_num = (curPageNum-1) * pagePerNum; 
+		
+		page_list_sql = "SELECT * FROM board_table WHERE regDate between DATE(?) and DATE(?)+1 ORDER BY content_id DESC LIMIT ?, ?";
+		//  붙여야 한다.
+		
+		 
+		try {
+			conn = this.getConnection();
+			page_pstmt = conn.prepareStatement(page_list_sql);
+			page_pstmt.setDate(1, start_date);// 물 번호
+			page_pstmt.setDate(2, end_date);    // 현재 페이지의  끝 게시물 번호까지 
+			page_pstmt.setInt(3,  start_content_num);
+			page_pstmt.setInt(4,  pagePerNum);
+			
+			resultSet = page_pstmt.executeQuery(); //해당 prepared statement에 쿼리문 실행. 
+			
+			while(resultSet.next()){ //DB에서 데이터 가져오기.
+				String title = resultSet.getString("title");
+				String content = resultSet.getString("content");
+				String regDate = resultSet.getString("regDate");
+				String modDate = resultSet.getString("modDate");
+				int content_id = resultSet.getInt("content_id"); 
+				
+				BoardVO data = new BoardVO();
+				data.setTitle(title);
+				data.setContent(content);
+				data.setRegDate(regDate);
+				data.setModDate(modDate);
+				data.setContent_id(content_id);  
+				vo_list.add(data);
+				System.out.println("제목:"+title+"내용:"+content);
+			} //end of while
+		} 		
+		catch(Exception e) {} 
+		finally {
+			if(conn != null) conn.close();
+			if(resultSet != null) resultSet.close();
+			if(page_pstmt   != null) page_pstmt.close();
+		} //end of finally
+		return vo_list;
+	}
+	public ArrayList<BoardVO> search_page(String search_type, String keyword, Criteria page_info) throws SQLException { 
 	
 		// 검색할 키워드를 파라미터로 받아 온다.
 		
@@ -90,24 +147,24 @@ public class BoardDAO {
 			conn = this.getConnection();
 			//String list_sql = "SELECT * FROM board_table"; //원래 SQL
 			/* TOTAL COUNT */
+			String page_list_sql="";
+			PreparedStatement list_page_pstmt=null;
 			
 			if(keyword.length()==0) {
+		
+				System.out.println("--------검색 키워드 X, 전체 검색----------");
 				
-				System.out.println("--------검색 키워드 X-----------");
-				//키워드 없는 경우
-				
-				String page_list_sql = 
+				page_list_sql = 
 						"SELECT * FROM board_table ORDER BY content_id DESC LIMIT ?, ?";
-				PreparedStatement list_page_pstmt=null;
-				
-				// 리스트로 몇 개 받아올지만 .
 				list_page_pstmt = conn.prepareStatement(page_list_sql);
 				list_page_pstmt.setInt(1, start_content_num);  // 현재 페이지의 시작 게시물 번호
 				list_page_pstmt.setInt(2, pagePerNum);    // 현재 페이지의  끝 게시물 번호까지
 				
+				//키워드 없는 경우 
+ 
 				resultSet = list_page_pstmt.executeQuery(); //해당 prepared statement에 쿼리문 실행. 
 				
-				while(resultSet.next()){ 
+				while(resultSet.next()){ //DB에서 데이터 가져오기.
 					String title = resultSet.getString("title");
 					String content = resultSet.getString("content");
 					String regDate = resultSet.getString("regDate");
@@ -121,26 +178,29 @@ public class BoardDAO {
 					data.setModDate(modDate);
 					data.setContent_id(content_id);  
 					vo_list.add(data);
+				} //end of while
+			}// end of 검색키워드 업는 경우.
+			else if(keyword.length()>0){
+				System.out.println("------검색 키워드 있음 !!--------------"+keyword);
+
+				String search_sql=""; 
+
+				if(search_type.equals("content")) {
+					search_sql = "SELECT * FROM board_table WHERE content LIKE ? ORDER BY content_id DESC LIMIT ?, ? "; 
 				}
-			}
-			else {
-				System.out.println("------검색 키워드 O !!--------------"+keyword);
-
-				String search_sql = "SELECT * FROM board_table WHERE title LIKE ? ORDER BY content_id DESC LIMIT ?, ? ";
-				page_pstmt = conn.prepareStatement(search_sql); 
-
-				page_pstmt.setString(1, "%"+keyword+"%");
-				page_pstmt.setInt(2, start_content_num);  // 현재 페이지의 시작 게시물 번호
-				page_pstmt.setInt(3, pagePerNum);    // 현재 페이지의  끝 게시물 번호까지
-				search_result = page_pstmt.executeQuery();
+				else if(search_type.equals("title")) {
+					search_sql = "SELECT * FROM board_table WHERE title LIKE ? ORDER BY content_id DESC LIMIT ?, ? ";  
+				}
 				
-				/* 제목에 we를 포함하는 row 중에서 start content num번부터 페이지별컨텐츠 갯수 개까지!*/
-				/* select * from board_table이 아니라 select from board_table의 SUBSET으로 되어있어야 */
-				/* 가져 온 쿼리 결과 중에서  몇 부터 몇 까지 */
-				/* 해당 가져 온 쿼리 결과 중에서 -> DESC LIMIT로 */
-				/* 앞 SQL문에서는 SELECT * FROM board_table desc LIMIT로 처리가능했던걸*/
+				//타입에 따른 sql 쿼리먼을 statement에 셋팅.
 				
-				//쿼리문 수행 자체를 안 한다. 
+ 				page_pstmt = conn.prepareStatement(search_sql); 
+				if(search_type.equals("content") || search_type.equals("title")) {
+					page_pstmt.setString(1, "%"+keyword+"%");
+					page_pstmt.setInt(2, start_content_num);  // 현재 페이지의 시작 게시물 번호
+					page_pstmt.setInt(3, pagePerNum);    // 현재 페이지의  끝 게시물 번호까지
+					search_result = page_pstmt.executeQuery();
+				}
 				while(search_result.next()) {
 					
 					String title = search_result.getString("title");
@@ -159,8 +219,7 @@ public class BoardDAO {
 					
 					System.out.println("검색후 찾은 데이터 = "+data.getTitle());
 				}
-			}
-			/* 일부만 같아도 찾는 방법. */
+			}  
 			
 			// 제목에 ~를 포함하면서
 			// 용연님 게시판 검색 쿼리 처리 때문에 그러는데욥  제목에 "we"를 포함시키는 것 중에 3~6번째 이런 식으로 쿼리문을 주고 싶은데.
@@ -174,13 +233,41 @@ public class BoardDAO {
 		} //end of finally
 		return vo_list;
 	}
-	public int search_totalCount(String keyword) throws SQLException { 
-		/* 검색된 결과 쿼리의 갯수를 리턴. */
-		
-		ResultSet search_result=null;
+	public int search_totalCount(Date startDate, Date endDate) throws SQLException {
 		PreparedStatement page_pstmt=null; //sql쿼리문이 아니라 DB랑 쿼리문 연결시켜준 Object.
+		ResultSet search_result=null; 
 		
-		Statement total_stmt = null; 
+		int row_count=0;
+		String search_sql="";
+		
+		try {
+			conn = this.getConnection();
+			/* TOTAL COUNT */
+			System.out.println("---검색!!---"+startDate + " " + endDate);
+
+			search_sql = "SELECT COUNT(*) FROM board_table WHERE regDate between DATE(?) and DATE(?)+1";
+			page_pstmt = conn.prepareStatement(search_sql);
+			page_pstmt.setDate(1, startDate);
+			page_pstmt.setDate(2, endDate);
+
+			search_result = page_pstmt.executeQuery(); 
+			
+			if(search_result.next()) 
+				row_count=search_result.getInt(1); 
+		}
+		catch(Exception e) {} 
+		finally {
+			if(conn != null) conn.close();
+			if(search_result != null) search_result.close(); 
+			if(page_pstmt   != null) page_pstmt.close();
+		} //end of finally
+		return row_count;
+	}
+	public int search_totalCount(String keyword) throws SQLException { 
+		/* 검색된 결과 쿼리의 갯수를 리턴. */ 
+		PreparedStatement page_pstmt=null; //sql쿼리문이 아니라 DB랑 쿼리문 연결시켜준 Object.
+		ResultSet search_result=null;
+		Statement total_stmt = null;  
 
 		int row_count=0;
 		String search_sql="";
@@ -193,29 +280,15 @@ public class BoardDAO {
 			search_sql = "SELECT COUNT(*) FROM board_table WHERE title LIKE ?";
 			page_pstmt = conn.prepareStatement(search_sql);
 			page_pstmt.setString(1, "%"+keyword+"%");
-			search_result = page_pstmt.executeQuery();
-			/*
-			 * 			
-			total_stmt = null;
-			String total_count_sql = "SELECT COUNT(*) FROM board_table";
-			total_stmt = conn.createStatement();//Static한 SQL문 처리하는 Object
-			total_result=total_stmt.executeQuery(total_count_sql);
-			
-			while(total_result.next()) {
-				totalCount = total_result.getInt(1);
-			} 
-			 */
+			search_result = page_pstmt.executeQuery(); 
 			
 			if(search_result.next()) 
-				row_count=search_result.getInt(1);
-			
-			System.out.println(" ----검색 결과 갯수----: "+row_count);
+				row_count=search_result.getInt(1); 
 		}
 		catch(Exception e) {} 
 		finally {
 			if(conn != null) conn.close();
-			if(search_result != null) search_result.close();
-			if(total_stmt   != null) total_stmt.close();
+			if(search_result != null) search_result.close(); 
 			if(page_pstmt   != null) page_pstmt.close();
 		} //end of finally
 		return row_count;
