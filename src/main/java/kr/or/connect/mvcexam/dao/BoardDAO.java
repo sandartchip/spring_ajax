@@ -69,7 +69,7 @@ public class BoardDAO {
 		return totalCount;
 	}
 	
-	public ArrayList<BoardVO> search_date_page(Date start_date, Date end_date, Criteria page_info) throws ParseException, SQLException{
+	public ArrayList<BoardVO> search_page(String keyword, String search_type, Date start_date, Date end_date, Criteria page_info) throws SQLException{
 		Connection conn = null; 
 		PreparedStatement page_pstmt=null; //sql쿼리문이 아니라 DB랑 쿼리문 연결시켜준 Object.
 		ArrayList<BoardVO> vo_list= new ArrayList<BoardVO>();
@@ -87,7 +87,74 @@ public class BoardDAO {
 		
 		start_content_num = (curPageNum-1) * pagePerNum; 
 		
-		page_list_sql = "SELECT * FROM board_table WHERE regDate between DATE(?) and DATE(?)+1 ORDER BY content_id DESC LIMIT ?, ?";
+		page_list_sql = "SELECT * FROM board_table WHERE regDate between DATE(?) and DATE(?)+1 "
+				+ "and title LIKE ? "
+				+ "ORDER BY content_id DESC LIMIT ?, ?";
+		//  붙여야 한다. 
+		 
+		try {
+			conn = this.getConnection();
+			page_pstmt = conn.prepareStatement(page_list_sql);
+			page_pstmt.setDate(1, start_date);// 물 번호
+			page_pstmt.setDate(2, end_date);    // 현재 페이지의  끝 게시물 번호까지 
+			page_pstmt.setString(3, keyword);
+			page_pstmt.setInt(4,  start_content_num);
+			page_pstmt.setInt(5,  pagePerNum);
+			
+			resultSet = page_pstmt.executeQuery(); //해당 prepared statement에 쿼리문 실행. 
+			
+			while(resultSet.next()){ //DB에서 데이터 가져오기.
+				String title = resultSet.getString("title");
+				String content = resultSet.getString("content");
+				String regDate = resultSet.getString("regDate");
+				String modDate = resultSet.getString("modDate");
+				String writer  = resultSet.getString("writer");
+				
+				int content_id = resultSet.getInt("content_id"); 
+				
+				BoardVO data = new BoardVO();
+				
+				data.setWriter(writer);
+				data.setTitle(title);
+				data.setContent(content);
+				data.setRegDate(regDate);
+				data.setModDate(modDate);
+				data.setContent_id(content_id);  
+				
+				vo_list.add(data);
+				System.out.println("제목:"+title+"내용:"+content+"작성자:"+writer);
+			} //end of while
+		} 		
+		catch(Exception e) {} 
+		finally {
+			if(conn != null) conn.close();
+			if(resultSet != null) resultSet.close();
+			if(page_pstmt   != null) page_pstmt.close();
+		} //end of finally
+		return vo_list;
+	}
+	public ArrayList<BoardVO> search_page(Date start_date, Date end_date, Criteria page_info) throws ParseException, SQLException{
+		Connection conn = null; 
+		PreparedStatement page_pstmt=null; //sql쿼리문이 아니라 DB랑 쿼리문 연결시켜준 Object.
+		ArrayList<BoardVO> vo_list= new ArrayList<BoardVO>();
+
+		System.out.println("------------날짜 검색으로 진입-----------");
+		
+		int pagePerNum = page_info.getPagePerNum(); //1페이지 당 게시물 갯수
+		int curPageNum = page_info.getPage(); //현재 페이지 번호
+		int start_content_num; 
+		
+		SimpleDateFormat transFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
+		String page_list_sql;
+		ResultSet resultSet=null;
+		
+		
+		start_content_num = (curPageNum-1) * pagePerNum; 
+
+		page_list_sql = 		
+				"SELECT * FROM board_table "
+				+ "WHERE regDate between DATE(?) and DATE(?)+1 "+
+				"ORDER BY content_id DESC LIMIT ?, ?";
 		//  붙여야 한다. 
 		 
 		try {
@@ -241,6 +308,41 @@ public class BoardDAO {
 		} //end of finally
 		return vo_list;
 	}
+	public int search_totalCount(Date startDate, Date endDate, String keyword) throws SQLException {
+		//String, date 정보 둘 다 있는 경우.
+		PreparedStatement page_pstmt=null; //sql쿼리문이 아니라 DB랑 쿼리문 연결시켜준 Object.
+		ResultSet search_result=null; 
+		String search_sql="";
+		int row_count=0;
+		
+		System.out.println(" search -date & keyword-");
+		try {
+			conn = this.getConnection();
+			/* TOTAL COUNT */
+			System.out.println("---검색!!---"+startDate + " " + endDate);
+
+			search_sql = "SELECT COUNT(*) FROM board_table "
+					+ "WHERE regDate between DATE(?) and DATE(?)+1"
+					+ "and title LIKE ? ";
+			
+			page_pstmt = conn.prepareStatement(search_sql);
+			page_pstmt.setDate(1, startDate);
+			page_pstmt.setDate(2, endDate);
+			page_pstmt.setString(3, keyword);
+
+			search_result = page_pstmt.executeQuery(); 
+			
+			if(search_result.next()) 
+				row_count=search_result.getInt(1); 
+		}
+		catch(Exception e) {} 
+		finally {
+			if(conn != null) conn.close();
+			if(search_result != null) search_result.close(); 
+			if(page_pstmt   != null) page_pstmt.close();
+		} //end of finally
+		return row_count;
+	}
 	public int search_totalCount(Date startDate, Date endDate) throws SQLException {
 		PreparedStatement page_pstmt=null; //sql쿼리문이 아니라 DB랑 쿼리문 연결시켜준 Object.
 		ResultSet search_result=null; 
@@ -274,8 +376,7 @@ public class BoardDAO {
 	public int search_totalCount(String keyword) throws SQLException { 
 		/* 검색된 결과 쿼리의 갯수를 리턴. */ 
 		PreparedStatement page_pstmt=null; //sql쿼리문이 아니라 DB랑 쿼리문 연결시켜준 Object.
-		ResultSet search_result=null;
-		Statement total_stmt = null;  
+		ResultSet search_result=null; 
 
 		int row_count=0;
 		String search_sql="";

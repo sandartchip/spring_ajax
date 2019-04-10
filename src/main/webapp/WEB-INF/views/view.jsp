@@ -134,10 +134,7 @@
 		$(document).ready(function(){
 			console.log('visibility change');
 			
-			if(<%=auth_ok%>) {
-//				.style.display = ;
-			}
-			else {
+			if(!(<%=auth_ok%>)) { 
 				modify_btn.style.display = "none";
 				delete_btn.style.display = "none";
 			}

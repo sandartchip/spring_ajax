@@ -97,10 +97,11 @@
 			 	<!-- form에서 파라미터명은 name에 바인딩 되므로. search type = value값.으로 바인딩되서  넘어가겠지.-->
 			 	<!-- input box에 있는 데이터는 get방식 파라미터로 넘어간다. --> 
 			 	
-			 	<input type="text" name="search_text" class="search_text_input"/> 
+			 	<input type="text" name="search_text" class="search_text_input" value="${search_text}"/> 
 			 	
 		 		<button type="submit">검색</button>
 		 		<span style="margin-left:40px;">날짜 </span>
+		 		
 		 		<input type="date" name="start_date" class="start_date_input"/>
 			 	<input type="date" name="end_date" class="end_date_input"/>	
 	 		</form>

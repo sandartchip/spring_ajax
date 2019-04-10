@@ -35,36 +35,7 @@ public class BoardController {
 	Criteria paging_info; //현재 페이지 번호, 페이지 당 게시물 수를 가지고 하나의 페이지를 표시하기 위한 정보를 가진 page VO. 
 	PageMaker page_list_maker;
 	
-/*
-	@RequestMapping("/login")
-	public String login(HttpServletRequest request, Model model) throws UnsupportedEncodingException {
-		
-		request.setCharacterEncoding("UTF-8");
-		
-		//매개변수로 받아온 request에 바인딩된 
-		String userId     = request.getParameter("user_id");
-		String userPasswd = request.getParameter("user_passwd");
-		
-		HttpSession session = request.getSession();
-		
-		model.addAttribute("userId", userId);
-		model.addAttribute("userPasswd", userPasswd);
-		
-		//model.addAttribute("request", request);
-		
-		command = new ULoginCommand();
-		command.execute(model);
-		
-		// request 파라미터로  수정할 content id 가지고 있는 request를 가져 옴.
-		// 모델에 해당 content id 가지고 있는 request 파라미터를 추가해준다.
-				//로그인 파라미터 받아와서 세션에 넣는다.
-		session.setAttribute("userId", userId);
-		session.setAttribute("userPasswd",userPasswd);
-		
-		return "redirect:list"; // 로 이동
-		//redirect 해야 하는 이유 : return 한걸 디스패처 서블릿에서 forward로 처리했었음.
-		//->맞나?
-	}*/
+	
 	@RequestMapping("/list")  //브라우저의 요청을 받을 때
 	public String list(HttpServletRequest request, Model model) throws ParseException, UnsupportedEncodingException { //필요한 데이터 넘기기 위해 model 객체를 파라미터로 넘겨준다.
 		
@@ -77,6 +48,9 @@ public class BoardController {
 		System.out.println("보존 search keyword?? "+search_keyword);
 		String pageNo = request.getParameter("pageNO");
 		String search_type = request.getParameter("search_type");
+		
+		System.out.println("검색 타입:" + search_type);
+		
 		// UTF-8 줬는데 왜 안되지??
 		
 		Date start_date, end_date; 
@@ -96,24 +70,30 @@ public class BoardController {
 		if(search_keyword.length()>0) {
 			URLDecoder.decode(request.getParameter("search_text"), "UTF-8");
 		}
- 		if(search_type.equals("date")) {
-			System.out.println("start_date"+start_date_s);
-			System.out.println("end_date"+end_date_s);
-			
-			//String to Date
-			SimpleDateFormat transFormat = new SimpleDateFormat("yyyy-MM-dd"); 
-			java.util.Date util_start_date = transFormat.parse( start_date_s );
-			java.util.Date util_end_date =  transFormat.parse( end_date_s );
-			
-			start_date = new java.sql.Date(util_start_date.getTime());
-			end_date =   new java.sql.Date(util_end_date.getTime());
-			
-			model.addAttribute("start_date", start_date);
-			model.addAttribute("end_date", end_date);
-			
-			session.setAttribute("start_date", start_date);
-			session.setAttribute("end_date", end_date);
-			//session에 넣는 이유 : 검색을 보존해서  다른 명령어 처리 시 검색어 보존해서 쓰기 위해. 
+		
+		System.out.println("start date:"+start_date_s);
+		System.out.println("end date:"+end_date_s);
+
+		if(start_date_s!=null && end_date_s!=null) {
+			if(start_date_s.length()>0 && end_date_s.length()>0) {
+				System.out.println("start_date"+start_date_s);
+				System.out.println("end_date"+end_date_s);
+				
+				//String to Date
+				SimpleDateFormat transFormat = new SimpleDateFormat("yyyy-MM-dd"); 
+				java.util.Date util_start_date = transFormat.parse( start_date_s );
+				java.util.Date util_end_date =  transFormat.parse( end_date_s );
+				
+				start_date = new java.sql.Date(util_start_date.getTime());
+				end_date =   new java.sql.Date(util_end_date.getTime());
+				
+				model.addAttribute("start_date", start_date);
+				model.addAttribute("end_date", end_date);
+				
+				session.setAttribute("start_date", start_date);
+				session.setAttribute("end_date", end_date);
+				//session에 넣는 이유 : 검색을 보존해서  다른 명령어 처리 시 검색어 보존해서 쓰기 위해. 
+			}
 		}
 		
 		model.addAttribute("search_keyword", search_keyword);

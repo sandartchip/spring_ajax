@@ -32,22 +32,40 @@ public class BListCommand extends HttpServlet implements BCommand  {
     	//currentPageNum;
     	Map<String, Object> model_map = model.asMap();
 
+    	
     	Criteria cur_page_info = (Criteria) model_map.get("pageVO"); //모델에서 Criteria형의 pageVO 객체 가져 온다.
     	String search_keyword = (String) model_map.get("search_keyword"); 
     	String search_type = (String) model_map.get("search_type");
+    	// input box에서 넘어온거. 
+    	// title/writer/content 
     	
     	Date start_date = (Date) model_map.get("start_date");
     	Date end_date = (Date) model_map.get("end_date");
-    	 
-    	// 초기 호출 시
     	
-    	if(search_keyword.length()==0 & search_type.length()==0) {
+    	/* 검색 조건 처리 */
+    	
+    	//list.jsp에서 검색 조건 가져 온다.
+    	
+    	System.out.println("keyword length = "+search_keyword.length());
+    	
+		if( start_date!=null && end_date != null && search_keyword.length()>0) {
+			search_type="date_and_keyword";
+			//날짜 정보만 있는 경우
+			System.out.println("검새타입=search and keyword");
+		}
+		
+		// 1. 초기 호출 시
+		else if(search_keyword.length()==0 && search_type.length()==0) {
     		search_keyword="";
     		search_type="title";
     		//넘어온 파라미터 없는 경우, 즉 초기 호출 시->default type을 title로.
-    	}
+    	}    
+		
+		else if(search_keyword.length()==0 && start_date!=null && end_date !=null) {
+			search_type="date";
+			System.out.println("검색타입 날짜!!");
+		}
     	
-    	// 날짜 들어왔을 때. 
     	
     	BoardDAO dao = new BoardDAO();
     	ArrayList<BoardVO> vo_list;
@@ -61,19 +79,31 @@ public class BListCommand extends HttpServlet implements BCommand  {
     		}
     		else if(search_type.equals("date")) { 
     			try {
-					vo_list = dao.search_date_page(start_date, end_date, cur_page_info);
+					vo_list = dao.search_page(start_date, end_date, cur_page_info);
 					model.addAttribute("list_item", vo_list);   //DAO를 통해 DB처리한 데이터 받아와서 모델에 넣음.
 				} catch (ParseException e) {}
+    		}
+    		else if(search_type.equals("date_and_keyword")) {
+    			vo_list = dao.search_page(search_keyword, search_type, start_date, end_date, cur_page_info);
+    			model.addAttribute("list_item", vo_list);
     		}
 			
 			if(search_keyword.length()==0 && !search_type.equals("date")) 	{ //검색 키워드 없는 경우.
 				total_row_count = dao.totalCount();
 			}
 			else {
-				if(search_type.equals("date")) total_row_count = dao.search_totalCount(start_date, end_date);
-				else {
+				if(search_type.equals("date")) //날짜만 
+					total_row_count = dao.search_totalCount(start_date, end_date);
+				//
+				
+				else if(search_type.equals("content") || search_type.equals("title")){ // 키워드만
 					total_row_count = dao.search_totalCount(search_keyword);
 				}
+				
+				else {  //날짜 & 키워드
+					total_row_count = dao.search_totalCount(start_date, end_date, search_keyword);
+				}
+				//키워드 & 날짜
 			}
 	    	// 전체, 일부 처리 ok
 			//total_row_count = vo_list.size();
