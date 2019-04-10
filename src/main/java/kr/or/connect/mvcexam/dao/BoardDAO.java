@@ -74,7 +74,7 @@ public class BoardDAO {
 		PreparedStatement page_pstmt=null; //sql쿼리문이 아니라 DB랑 쿼리문 연결시켜준 Object.
 		ArrayList<BoardVO> vo_list= new ArrayList<BoardVO>();
 
-		System.out.println("------------날짜 검색으로 진입-----------");
+		System.out.println("------------날짜 and date 검색으로 진입-----------");
 		
 		int pagePerNum = page_info.getPagePerNum(); //1페이지 당 게시물 갯수
 		int curPageNum = page_info.getPage(); //현재 페이지 번호
@@ -92,12 +92,14 @@ public class BoardDAO {
 				+ "ORDER BY content_id DESC LIMIT ?, ?";
 		//  붙여야 한다. 
 		 
+		System.out.println( start_date+" " + end_date+" " + keyword+" "+ start_content_num + " " + pagePerNum);
+		
 		try {
 			conn = this.getConnection();
 			page_pstmt = conn.prepareStatement(page_list_sql);
 			page_pstmt.setDate(1, start_date);// 물 번호
 			page_pstmt.setDate(2, end_date);    // 현재 페이지의  끝 게시물 번호까지 
-			page_pstmt.setString(3, keyword);
+			page_pstmt.setString(3, "%"+keyword+"%");
 			page_pstmt.setInt(4,  start_content_num);
 			page_pstmt.setInt(5,  pagePerNum);
 			
@@ -328,7 +330,7 @@ public class BoardDAO {
 			page_pstmt = conn.prepareStatement(search_sql);
 			page_pstmt.setDate(1, startDate);
 			page_pstmt.setDate(2, endDate);
-			page_pstmt.setString(3, keyword);
+			page_pstmt.setString(3, "%"+keyword+"%"); 
 
 			search_result = page_pstmt.executeQuery(); 
 			

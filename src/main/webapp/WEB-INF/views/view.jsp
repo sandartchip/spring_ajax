@@ -68,7 +68,7 @@
 		<div class="page-header">
 			<h1>Board</h1>
 		</div>
-		<jsp:include page="page_header.jsp" />
+		<!--<jsp:include page="page_header.jsp" /> -->
 		
 		<div class="content_container">
 			<table class="table table-bordered table-hover active"> 

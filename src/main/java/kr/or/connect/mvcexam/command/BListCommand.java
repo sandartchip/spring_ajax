@@ -66,7 +66,6 @@ public class BListCommand extends HttpServlet implements BCommand  {
 			System.out.println("검색타입 날짜!!");
 		}
     	
-    	
     	BoardDAO dao = new BoardDAO();
     	ArrayList<BoardVO> vo_list;
     	

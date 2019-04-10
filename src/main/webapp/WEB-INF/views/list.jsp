@@ -2,14 +2,18 @@
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="utf-8"%>
 <%@ page import = "kr.or.connect.mvcexam.vo.BoardVO"  %>
 <%@ page import = "java.util.ArrayList"  %> 
+<%@ page import = "java.util.Date"  %> 
 <%@ taglib prefix="c"   uri="http://java.sun.com/jsp/jstl/core" %>
 <% 
 	request.setCharacterEncoding("utf-8"); 
 	session = request.getSession(true);
 	
 	String userId = (String) session.getAttribute("userId");
-	
 	String loginStatus = (String) session.getAttribute("loginStatus");
+	Date startDate = (Date) session.getAttribute("startDate");
+	Date endDate = (Date) session.getAttribute("endDate");
+	
+	if(loginStatus==null) loginStatus = "d";
 %>
 <!DOCTYPE html>
 <html lang="ko">
@@ -29,6 +33,19 @@
 		.header_div {
 			text-align: right;
 		}
+		.page_box{
+			text-align:center;
+		}
+		.page_ul {
+			display:inline-block; *display:inline; zoom:1;
+		}
+		
+		.page_li {
+		
+			float:left;
+			margin-left:-1px;
+			z-index:1;
+		}
 	</style>
 </head>
 
@@ -42,7 +59,7 @@
 		<div class="login_header">
 			<c:choose>
 				<c:when test="${sessionScope.userId==null}">
-					<form action="login">
+					<form action="login" method="post">
 						ID <input type="text" name="userId" /> 
 						Password <input type="password" name="userPasswd" maxlength='10'/>
 						<button type="submit">LOGIN</button>
@@ -86,8 +103,26 @@
 		<!-- 컨트롤러에서 받아온 page_list_maker로 하단에 표시.  -->
 		<!-- prev 버튼 --> 
 		<!--  시작 번호:startPage to  endPage -->
-		 
-	 	<div class="search_box">
+		  <div class="page_box" >
+	 		<ul class="page_ul" style="text-align:center; margin-bottom:20px;">
+				<c:if test="${ page_list_maker.prev }"> 
+					<li style="list-style-type:none; padding-right:10px" class="page_li">
+						<a href="<c:url value='list?pageNO=${page_list_maker.startPage-1}&search_text=${search_text}&search_type=${search_type}&start_date=${start_date}&end_date=${end_date}'/>"> 이전 페이지 </a>
+					</li> <!--  list 호출 -> 리스트 & pageMaker를 다시 들고 온다. pageMaker-->
+				</c:if>
+				<c:forEach var="page_index" begin="${page_list_maker.startPage}" end="${page_list_maker.endPage}">
+				 	<li style="list-style-type:none; padding-right:10px"  class="page_li">
+				 		<a href="<c:url value='list?pageNO=${page_index}&search_text=${search_text}&search_type=${search_type}&start_date=${start_date}&end_date=${end_date}'/>"> ${page_index}</a>  
+				 	</li>
+			 	</c:forEach>
+			 	<c:if test="${ page_list_maker.next }">
+			 		<li style="list-style-type:none;"  class="page_li">
+			 			<a href="<c:url value='list?pageNO=${page_list_maker.endPage+1}&search_text=${search_text}&search_type=${search_type}&start_date=${start_date}&end_date=${end_date}' />">다음 페이지</a>
+			 		</li>
+			 	</c:if>
+		 	</ul>
+	 	</div>
+	 	<div class="search_box" style="text-align:center">
 	 		<form action="list">
 		 		<select name="search_type">
 			 		<option value="title"> 제목 </option>
@@ -102,30 +137,12 @@
 		 		<button type="submit">검색</button>
 		 		<span style="margin-left:40px;">날짜 </span>
 		 		
-		 		<input type="date" name="start_date" class="start_date_input"/>
-			 	<input type="date" name="end_date" class="end_date_input"/>	
-	 		</form>
-	 	</div> 
-	 	
-	 	
-	 	<ul>
-			<c:if test="${ page_list_maker.prev }"> 
-				<li style="float:left; list-style-type:none; padding-right:10px">
-					<a href="<c:url value='list?pageNO=${page_list_maker.startPage-1}&search_text=${search_text}&search_type=${search_type}&start_date=${start_date}&end_date=${end_date}'/>"> 이전 페이지 </a>
-				</li> <!--  list 호출 -> 리스트 & pageMaker를 다시 들고 온다. pageMaker-->
-			</c:if>
-			<c:forEach var="page_index" begin="${page_list_maker.startPage}" end="${page_list_maker.endPage}">
-			 	<li style="float:left; list-style-type:none; padding-right:10px">
-			 		<a href="<c:url value='list?pageNO=${page_index}&search_text=${search_text}&search_type=${search_type}&start_date=${start_date}&end_date=${end_date}'/>"> ${page_index}</a>  
-			 	</li>
-		 	</c:forEach>
-		 	<c:if test="${ page_list_maker.next }">
-		 		<li style="float:left; list-style-type:none;">
-		 			<a href="<c:url value='list?pageNO=${page_list_maker.endPage+1}&search_text=${search_text}&search_type=${search_type}&start_date=${start_date}&end_date=${end_date}' />">다음 페이지</a>
-		 		</li>
-		 	</c:if>
-	 	</ul>
-	 	
+		 		<input type="date" name="start_date" class="start_date_input" value="${start_date}"/>
+			 	<input type="date" name="end_date" class="end_date_input" value="${end_date}"/>	
+	 		</form> 
+	 	</div>
+	
+
 		<!-- 컨트롤러에서 넘어 온 페이지 Maker 사용해서 페이지 리스트 만듬-->
 		<!-- next 버튼 -->
 	</div>
@@ -148,7 +165,19 @@
 		console.log(date_end_elem);
 		console.log(text_elem);
 		
-		$(document).ready(function(){		
+		var login_status = '<%=loginStatus %>';
+		
+		//default = d
+		
+		if(login_status =="f"){
+			alert("비밀번호가 잘못됨!");
+		}
+		else if(login_status=="n"){
+			alert("아이디없음!!");
+		}
+		
+		$(document).ready(function(){
+			
 
 			
 			/*
