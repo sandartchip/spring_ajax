@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.ui.Model;
 
@@ -15,7 +16,8 @@ public class BWriteCommand implements BCommand{
 	public void execute(Model model) {
 		
 		Map<String, Object> board_map = model.asMap();
-		HttpServletRequest request_board = (HttpServletRequest) board_map.get("write_request");  //form에서 Request paramete로  title, content 
+		HttpServletRequest request_board = (HttpServletRequest) board_map.get("write_request");  
+		//form에서 Request paramete로  title, content 
 		
 		// DB 한글 처리->OK
 		// jsp단 한글처리->OK
@@ -29,9 +31,11 @@ public class BWriteCommand implements BCommand{
 		
 		String title = request_board.getParameter("title");
 		String content = request_board.getParameter("content");
+		String writer =  request_board.getParameter("writer");
+		System.out.println("writer:"+writer);
 		
 		BoardDAO dao = new BoardDAO();
-		dao.write(title, content);
+		dao.write(title, content, writer);
 	}
 
 }

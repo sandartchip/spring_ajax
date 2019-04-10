@@ -5,7 +5,15 @@ public class BoardVO {
 	private String content;
 	private String regDate;
 	private String modDate;
+	private String writer;
 	private int content_id;
+	
+	public String getWriter() {
+		return writer;
+	}
+	public void setWriter(String writer) {
+		this.writer = writer;
+	}
 	
 	public String getTitle() {
 		return title;

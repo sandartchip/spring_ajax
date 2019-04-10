@@ -23,7 +23,7 @@ public class BoardDAO {
 	String dbUser = "root";
 	String dbPassword = "root";
 	int totalCount=0;
-
+	
 	
 	public Connection getConnection() { 
 
@@ -39,7 +39,7 @@ public class BoardDAO {
 		} 
 		return conn;   
 	} //END OF DBConnection
-
+	 
 	public int totalCount() throws SQLException { //list total count.
 		
 		ResultSet total_result=null;
@@ -88,8 +88,7 @@ public class BoardDAO {
 		start_content_num = (curPageNum-1) * pagePerNum; 
 		
 		page_list_sql = "SELECT * FROM board_table WHERE regDate between DATE(?) and DATE(?)+1 ORDER BY content_id DESC LIMIT ?, ?";
-		//  붙여야 한다.
-		
+		//  붙여야 한다. 
 		 
 		try {
 			conn = this.getConnection();
@@ -106,16 +105,21 @@ public class BoardDAO {
 				String content = resultSet.getString("content");
 				String regDate = resultSet.getString("regDate");
 				String modDate = resultSet.getString("modDate");
+				String writer  = resultSet.getString("writer");
+				
 				int content_id = resultSet.getInt("content_id"); 
 				
 				BoardVO data = new BoardVO();
+				
+				data.setWriter(writer);
 				data.setTitle(title);
 				data.setContent(content);
 				data.setRegDate(regDate);
 				data.setModDate(modDate);
 				data.setContent_id(content_id);  
+				
 				vo_list.add(data);
-				System.out.println("제목:"+title+"내용:"+content);
+				System.out.println("제목:"+title+"내용:"+content+"작성자:"+writer);
 			} //end of while
 		} 		
 		catch(Exception e) {} 
@@ -169,6 +173,7 @@ public class BoardDAO {
 					String content = resultSet.getString("content");
 					String regDate = resultSet.getString("regDate");
 					String modDate = resultSet.getString("modDate");
+					String writer  = resultSet.getString("writer");
 					int content_id = resultSet.getInt("content_id"); 
 					
 					BoardVO data = new BoardVO();
@@ -176,7 +181,8 @@ public class BoardDAO {
 					data.setContent(content);
 					data.setRegDate(regDate);
 					data.setModDate(modDate);
-					data.setContent_id(content_id);  
+					data.setContent_id(content_id);
+					data.setWriter(writer);
 					vo_list.add(data);
 				} //end of while
 			}// end of 검색키워드 업는 경우.
@@ -191,7 +197,6 @@ public class BoardDAO {
 				else if(search_type.equals("title")) {
 					search_sql = "SELECT * FROM board_table WHERE title LIKE ? ORDER BY content_id DESC LIMIT ?, ? ";  
 				}
-				
 				//타입에 따른 sql 쿼리먼을 statement에 셋팅.
 				
  				page_pstmt = conn.prepareStatement(search_sql); 
@@ -207,9 +212,12 @@ public class BoardDAO {
 					String content = search_result.getString("content");
 					String regDate = search_result.getString("regDate");
 					String modDate = search_result.getString("modDate");
+					String writer  = search_result.getString("writer");
 					int content_id = search_result.getInt("content_id");  
 					
 					BoardVO data = new BoardVO();
+					
+					data.setWriter(writer);
 					data.setTitle(title);
 					data.setContent(content);
 					data.setRegDate(regDate);
@@ -309,12 +317,14 @@ public class BoardDAO {
 				String content = resultSet.getString("content");
 				String regDate = resultSet.getString("regDate");
 				String modDate = resultSet.getString("modDate");
+				String writer  = resultSet.getString("writer");
 				int content_id = resultSet.getInt("content_id");  
 				 
 				content_vo.setTitle(title);
 				content_vo.setContent(content);
 				content_vo.setRegDate(regDate);
 				content_vo.setModDate(modDate);
+				content_vo.setWriter(writer);
 				content_vo.setContent_id(content_id);   
 			} //리퀘스트 파라미터에
 
@@ -330,7 +340,7 @@ public class BoardDAO {
 		return content_vo;
 	}
 	
-	public void write(String title, String content) {
+	public void write(String title, String content, String writer) {
 		PreparedStatement pstmt = null;
 		
 		long time = System.currentTimeMillis();
@@ -341,8 +351,8 @@ public class BoardDAO {
 		regDate=modDate=str; 
 		//날짜 등록. 
 		
-		String insert_sql = "INSERT INTO board_table (title, content, regDate, modDate) values(?,?,?,?)";
-		
+		String insert_sql = "INSERT INTO board_table (title, content, regDate, modDate, writer) values(?,?,?,?,?)";
+						
 		try {
 			conn = this.getConnection();
 			pstmt = conn.prepareStatement(insert_sql);
@@ -351,6 +361,7 @@ public class BoardDAO {
 			pstmt.setString(2, content);
 			pstmt.setString(3, regDate);
 			pstmt.setString(4, modDate);
+			pstmt.setString(5, writer);
 			pstmt.executeUpdate();   
 		} catch (SQLException e1) { 
 			e1.printStackTrace();

@@ -20,6 +20,7 @@ import kr.or.connect.mvcexam.command.BCommand;
 import kr.or.connect.mvcexam.command.BContentCommand;
 import kr.or.connect.mvcexam.command.BDeleteCommand;
 import kr.or.connect.mvcexam.command.BListCommand;
+import kr.or.connect.mvcexam.command.ULoginCommand;
 import kr.or.connect.mvcexam.command.BModifyCommand;
 import kr.or.connect.mvcexam.command.BWriteCommand;
 import kr.or.connect.mvcexam.vo.Criteria;
@@ -34,6 +35,36 @@ public class BoardController {
 	Criteria paging_info; //현재 페이지 번호, 페이지 당 게시물 수를 가지고 하나의 페이지를 표시하기 위한 정보를 가진 page VO. 
 	PageMaker page_list_maker;
 	
+/*
+	@RequestMapping("/login")
+	public String login(HttpServletRequest request, Model model) throws UnsupportedEncodingException {
+		
+		request.setCharacterEncoding("UTF-8");
+		
+		//매개변수로 받아온 request에 바인딩된 
+		String userId     = request.getParameter("user_id");
+		String userPasswd = request.getParameter("user_passwd");
+		
+		HttpSession session = request.getSession();
+		
+		model.addAttribute("userId", userId);
+		model.addAttribute("userPasswd", userPasswd);
+		
+		//model.addAttribute("request", request);
+		
+		command = new ULoginCommand();
+		command.execute(model);
+		
+		// request 파라미터로  수정할 content id 가지고 있는 request를 가져 옴.
+		// 모델에 해당 content id 가지고 있는 request 파라미터를 추가해준다.
+				//로그인 파라미터 받아와서 세션에 넣는다.
+		session.setAttribute("userId", userId);
+		session.setAttribute("userPasswd",userPasswd);
+		
+		return "redirect:list"; // 로 이동
+		//redirect 해야 하는 이유 : return 한걸 디스패처 서블릿에서 forward로 처리했었음.
+		//->맞나?
+	}*/
 	@RequestMapping("/list")  //브라우저의 요청을 받을 때
 	public String list(HttpServletRequest request, Model model) throws ParseException, UnsupportedEncodingException { //필요한 데이터 넘기기 위해 model 객체를 파라미터로 넘겨준다.
 		
@@ -82,6 +113,7 @@ public class BoardController {
 			
 			session.setAttribute("start_date", start_date);
 			session.setAttribute("end_date", end_date);
+			//session에 넣는 이유 : 검색을 보존해서  다른 명령어 처리 시 검색어 보존해서 쓰기 위해. 
 		}
 		
 		model.addAttribute("search_keyword", search_keyword);
@@ -90,7 +122,6 @@ public class BoardController {
 		session.setAttribute("search_text", search_keyword);
 		session.setAttribute("search_type", search_type);
 
-		System.out.println("검색 키워드-Controller = "+ search_keyword);
 		
 		// 가장 처음에 접속했을 땐 페이지 정보가 없다-> pageNO=1로 미리 셋팅 후 PageMaker 만든다.
 		
@@ -127,9 +158,7 @@ public class BoardController {
 	}
 	
 	@RequestMapping("/view")
-	public String content_view(HttpServletRequest request, Model model) { 
-		
-		//HttpServletRequest의 getParameter() 메서드를 이용하여 파라미터값 가져올 수 있다.
+	public String content_view(HttpServletRequest request, Model model) {  
 		
 		System.out.println("content view");
 		model.addAttribute("request", request); //모델 객체에 content id 정보를 가진 리퀘스트 객체 추가.
@@ -148,6 +177,7 @@ public class BoardController {
 	
 	@RequestMapping("/write_view")
 	public String write_view(Model model) {
+		System.out.println();
 		return "write_view";
 	}
 	
@@ -158,12 +188,7 @@ public class BoardController {
 		model.addAttribute("write_request", request);   
 		command = new BWriteCommand();
 		command.execute(model);
-		
-		
-//		return_url =list?pageNO=${page_list_maker.startPage-1}&search_text=${search_text}&
-		//search_type=${search_type}&start_date=${start_date}&end_date=${end_date};
-	
-		
+		 
 		// 글 작성 후 session객체에 저장된 파라미터 들고 오기 위해
 		
 		// 리다이렉트 시킬 때 
@@ -180,15 +205,14 @@ public class BoardController {
 		 
 		System.out.println("보존 검색어??"+search_text);
 		String encode_search_text = URLEncoder.encode(search_text, "UTF-8");
-
+		
 		
 		String return_url = "redirect:list?pageNO="+((page_maker.getStartPage()) -1)+
 				"&search_text="+encode_search_text + "&search_type="+search_type+
 				"&start_date="+start_date + "&end_date="+end_date;
 		System.out.println("redirect_url + " + return_url);
 		
-		return return_url;
-		//return "redirect:list";
+		return return_url; 
 	}
 	
 	@RequestMapping("/delete")
@@ -208,7 +232,7 @@ public class BoardController {
 		PageMaker page_maker;
 		page_maker = (PageMaker) session.getAttribute("page_list_maker"); 
 
-		
+		/* 검색 시 redirect 위해서.*/ 
 		String pageNO;
 		String search_text = (String) session.getAttribute("search_text");
 		String search_type = (String) session.getAttribute("search_type");

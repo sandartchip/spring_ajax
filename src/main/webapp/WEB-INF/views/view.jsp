@@ -5,15 +5,35 @@
 <% 
 	request.setCharacterEncoding("utf-8");
 	response.setContentType("text/html;charset=UTF-8");	
+	session = request.getSession(true);
+	Boolean auth_ok=false;
+	
+	// JSTL은 session에 있는거 name이랑 알아서 매칭해서 들고 온다.
+	
+	String session_id= (String) session.getAttribute("userId");
+	
+	BoardVO content_vo = (BoardVO) request.getAttribute("content");
+	String content_writer
+	= content_vo.getWriter();
+	
+	System.out.println("ID검증"+session_id + " " + content_writer);
+	if(session_id.equals(content_writer)) {
+		//글 작성자가 글 수정
+		auth_ok=true;
+		System.out.println("auth ok");
+	}
+	else {
+		auth_ok=false;
+		System.out.println("auth fail");
+		//글 작성자 아닌 인간이 수정
+	}
 	/*
-
-	JSTL의 EL구문 쓰면 getAttribute 안 해줘도 됨.
-
-	Model 객체에 이미 해당 번호에 해당하는 VO가
-	BContentCommand를 통해 들어가 있음.
-	*/
-%>  
-    
+		JSTL의 EL구문 쓰면 getAttribute 안 해줘도 됨.
+	
+		Model 객체에 이미 해당 번호에 해당하는 VO가
+		BContentCommand를 통해 들어가 있음.
+	*/	
+%>
 <!DOCTYPE html>
 <html lang="ko">
 	<head>
@@ -39,7 +59,7 @@
 
 			.t_body {
 				width:80%;
-			}
+			} 
 		</style>
 	</head>
 <body>
@@ -48,6 +68,7 @@
 		<div class="page-header">
 			<h1>Board</h1>
 		</div>
+		<jsp:include page="page_header.jsp" />
 		
 		<div class="content_container">
 			<table class="table table-bordered table-hover active"> 
@@ -55,6 +76,10 @@
 					<tr>
 						<td class="t_header">글 제목</td>
 						<td class="t_body">${content.title}</td>
+					</tr>
+					<tr>
+						<td class="t_header">작성자</td>
+						<td class="t_body">${content.writer}</td>
 					</tr>
 					<tr>
 						<td class="t_header" style="height:400px">글 내용</td>
@@ -79,13 +104,13 @@
 				</button>
 		
 				<button type="button"
-						class="btn btn-lg btn-default btn-sm"
+						class="btn btn-lg btn-default btn-sm modify_btn"
 						onclick="location.href='modify_view?content_id=${content.content_id}'">
 					MODIFY
 				</button>
 				
 				<button type="button"
-						class="btn btn-lg btn-default btn-sm"
+						class="btn btn-lg btn-default btn-sm delete_btn"
 						onclick="location.href='delete?content_id=${content.content_id}'">
 					DELETE				
 				</button>	
@@ -98,5 +123,26 @@
 	
 	<!-- 모든 컴파일된 플러그인을 포함합니다. -->
 	<script src="js/bootstrap.min.js"></script>
+	
+	<script type="text/javascript">
+		var modify_btns = document.getElementsByClassName('modify_btn');
+		var modify_btn = modify_btns[0];
+		
+		var delete_btns = document.getElementsByClassName('delete_btn');
+		var delete_btn = delete_btns[0];
+		
+		$(document).ready(function(){
+			console.log('visibility change');
+			
+			if(<%=auth_ok%>) {
+//				.style.display = ;
+			}
+			else {
+				modify_btn.style.display = "none";
+				delete_btn.style.display = "none";
+			}
+		}).change();
+		
+	</script>
 </body>
 </html>

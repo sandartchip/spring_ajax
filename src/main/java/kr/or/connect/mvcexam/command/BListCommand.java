@@ -44,7 +44,6 @@ public class BListCommand extends HttpServlet implements BCommand  {
     	if(search_keyword.length()==0 & search_type.length()==0) {
     		search_keyword="";
     		search_type="title";
-    		System.out.println("키워드X "+search_type);
     		//넘어온 파라미터 없는 경우, 즉 초기 호출 시->default type을 title로.
     	}
     	
@@ -60,8 +59,7 @@ public class BListCommand extends HttpServlet implements BCommand  {
     			vo_list = dao.search_page(search_type, search_keyword, cur_page_info);
     			model.addAttribute("list_item", vo_list);   //DAO를 통해 DB처리한 데이터 받아와서 모델에 넣음.
     		}
-    		else if(search_type.equals("date")) {
-    			System.out.println("date");
+    		else if(search_type.equals("date")) { 
     			try {
 					vo_list = dao.search_date_page(start_date, end_date, cur_page_info);
 					model.addAttribute("list_item", vo_list);   //DAO를 통해 DB처리한 데이터 받아와서 모델에 넣음.

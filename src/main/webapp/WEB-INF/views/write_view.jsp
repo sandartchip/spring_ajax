@@ -1,5 +1,13 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%
+	request.setCharacterEncoding("utf-8"); 
+	session = request.getSession(true);
+	
+//	String userId = (String) session.getAttribute("userId");
+	
+%>
+
 <!DOCTYPE html>
 <html>
 	<head>
@@ -42,6 +50,7 @@
 								<td class="t_header">제목</td>
 								<td class="t_body"> 
 									<input type="text" name="title" style="width:100%"/> 
+									<input type="hidden" name="writer" value="${userId}">
 								</td>
 							</tr>
 							<tr>
