@@ -177,31 +177,6 @@
 		}
 		
 		$(document).ready(function(){
-			
-
-			
-			/*
-				$("select").change(function(){
-				console.log("hi!! change!!");
-				$(this).find("option:selected").each(function(){
-					 
-					var optionValue = $(this).attr("value");
-					console.log("선택 option"+optionValue);
-					if(optionValue=="date"){
-						
-						date_start_elem.style.display="inline";
-						date_end_elem.style.display = "inline";
-						text_elem.style.display = "none";
-						console.log(" date  선택");
-					}
-					else{
-						text_elem.style.display="inline";
-						date_start_elem.style.display="none";
-						date_end_elem.style.display = "none";
-					}
-				});
-			}).change();
-			*/
 		});
 	</script>	
 	<!-- src 폴더에서 찾아 옴. -->

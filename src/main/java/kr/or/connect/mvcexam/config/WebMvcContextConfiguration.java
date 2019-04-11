@@ -37,7 +37,7 @@ public class WebMvcContextConfiguration extends WebMvcConfigurerAdapter{
     public void addViewControllers(final ViewControllerRegistry registry) {
     		System.out.println("아무것도 없음");
     		System.out.println("addViewControllers가 호출됩니다. ");
-    		registry.addViewController("/").setViewName("main"); 
+    		registry.addViewController("/").setViewName("list"); 
     		//컨트롤러 클래스를 작성하지 않고 매핑할 수 있게 해주는거 (디폴트 view)
     		//view name은 ViewResolver로 찾아옴
     }

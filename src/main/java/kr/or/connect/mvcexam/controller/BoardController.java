@@ -73,29 +73,36 @@ public class BoardController {
 		
 		System.out.println("start date:"+start_date_s);
 		System.out.println("end date:"+end_date_s);
+ 
+		java.util.Date util_start_date;
+		java.util.Date util_end_date;
+		SimpleDateFormat transFormat;
+		
 
-		if(start_date_s!=null && end_date_s!=null) {
-			if(start_date_s.length()>0 && end_date_s.length()>0) {
+		session.setAttribute("start_date", null);
+		session.setAttribute("end_date", null);     //Null값인 경우도 검색어 보존 위해 Session에 저장. 
+		
+		transFormat = new SimpleDateFormat("yyyy-MM-dd"); 
+		if(start_date_s != null) {
+			if(start_date_s.length()>0) { //공백인 경우 제외 (??? 왜썼지?)
 				System.out.println("start_date"+start_date_s);
-				System.out.println("end_date"+end_date_s);
-				
-				//String to Date
-				SimpleDateFormat transFormat = new SimpleDateFormat("yyyy-MM-dd"); 
-				java.util.Date util_start_date = transFormat.parse( start_date_s );
-				java.util.Date util_end_date =  transFormat.parse( end_date_s );
-				
+				util_start_date = transFormat.parse( start_date_s );
 				start_date = new java.sql.Date(util_start_date.getTime());
-				end_date =   new java.sql.Date(util_end_date.getTime());
 				
 				model.addAttribute("start_date", start_date);
-				model.addAttribute("end_date", end_date);
-				
-				session.setAttribute("start_date", start_date);
-				session.setAttribute("end_date", end_date);
-				//session에 넣는 이유 : 검색을 보존해서  다른 명령어 처리 시 검색어 보존해서 쓰기 위해. 
+				session.setAttribute("start_date", start_date); //유효한 값일 경우 다시 set
 			}
 		}
-		
+		if(end_date_s != null) {
+			if(end_date_s.length()>0) {
+				System.out.println("end_date"+end_date_s);
+				util_end_date =  transFormat.parse( end_date_s );
+				end_date =   new java.sql.Date(util_end_date.getTime());
+				model.addAttribute("end_date", end_date);
+				session.setAttribute("end_date", end_date); 
+			}
+		}
+
 		model.addAttribute("search_keyword", search_keyword);
 		model.addAttribute("search_type", search_type);
 		
@@ -134,7 +141,10 @@ public class BoardController {
 		
 		/*  redirect 고려하지 않은 경우      */
 		 
-		return "list"; //list.jsp 로 페이지 page listMaker 보낸다.	
+		return "list"; 
+		// Controller가 지정한 view 파일명. ->
+		// web.xml->WebMvcContextConfiguration
+		// ->list.jsp 로 페이지 page listMaker 보낸다.	
 	}
 	
 	@RequestMapping("/view")
