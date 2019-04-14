@@ -20,7 +20,6 @@ import kr.or.connect.mvcexam.command.BCommand;
 import kr.or.connect.mvcexam.command.BContentCommand;
 import kr.or.connect.mvcexam.command.BDeleteCommand;
 import kr.or.connect.mvcexam.command.BListCommand;
-import kr.or.connect.mvcexam.command.ULoginCommand;
 import kr.or.connect.mvcexam.command.BModifyCommand;
 import kr.or.connect.mvcexam.command.BWriteCommand;
 import kr.or.connect.mvcexam.vo.Criteria;
@@ -34,8 +33,37 @@ public class BoardController {
 	BCommand command; 
 	Criteria paging_info; //현재 페이지 번호, 페이지 당 게시물 수를 가지고 하나의 페이지를 표시하기 위한 정보를 가진 page VO. 
 	PageMaker page_list_maker;
+	String redirect_with_search;
 	
 	
+	public String make_search_url (HttpServletRequest request) throws UnsupportedEncodingException {
+		// 어떤 작업 후 List로 리턴할 때 검색어, 검색 타입, 시작 날짜, 끝나는 날짜 파라미터를 유지하기 위해.
+		
+		request.setCharacterEncoding("UTF-8");
+		HttpSession session = request.getSession(); 
+		
+		PageMaker page_maker;
+		page_maker = (PageMaker) session.getAttribute("page_list_maker"); 
+
+		/* 검색 시 redirect 위해서.*/ 
+		String pageNO;
+		String search_text = (String) session.getAttribute("search_text");
+		String search_type = (String) session.getAttribute("search_type");
+		Date start_date = (Date) session.getAttribute("start_date");
+		Date end_date   = (Date) session.getAttribute("end_date");
+		
+		String s_start_date, s_end_date;
+		
+		s_start_date = start_date==null?"":start_date.toString(); //date가 null인 경우 
+		s_end_date = end_date	 ==null?"":end_date.toString();
+		 
+		String encode_search_text = URLEncoder.encode(search_text, "UTF-8");
+		String return_url = "redirect:list?pageNO="+((page_maker.getStartPage()) -1)+
+				"&search_text="+encode_search_text + "&search_type="+search_type+
+				"&start_date="+s_start_date + "&end_date="+s_end_date;
+				
+		return return_url;
+	}
 	@RequestMapping("/list")  //브라우저의 요청을 받을 때
 	public String list(HttpServletRequest request, Model model) throws ParseException, UnsupportedEncodingException { //필요한 데이터 넘기기 위해 model 객체를 파라미터로 넘겨준다.
 		
@@ -45,20 +73,18 @@ public class BoardController {
 		request.setCharacterEncoding("UTF-8");
 		
 		String search_keyword = request.getParameter("search_text"); 
-		System.out.println("보존 search keyword?? "+search_keyword);
+		
 		String pageNo = request.getParameter("pageNO");
 		String search_type = request.getParameter("search_type");
 		
-		System.out.println("검색 타입:" + search_type);
-		
-		// UTF-8 줬는데 왜 안되지??
+		// UTF-8 줬는데 왜 안되지?? 
 		
 		Date start_date, end_date; 
 		HttpSession session = request.getSession(); //서블릿에서 세션 사용 위해 메서드 호출.
  
-		String start_date_s = request.getParameter("start_date");
-		String end_date_s = request.getParameter("end_date");
-		System.out.println("pageNo " + pageNo);
+		String start_date_s = request.getParameter("start_date")==null? "":request.getParameter("start_date");
+		String end_date_s = request.getParameter("end_date")==null?"":request.getParameter("end_date");
+		
 		
 		if(pageNo==null || pageNo.length()==0) {
 			pageNo="1";
@@ -71,9 +97,7 @@ public class BoardController {
 			URLDecoder.decode(request.getParameter("search_text"), "UTF-8");
 		}
 		
-		System.out.println("start date:"+start_date_s);
-		System.out.println("end date:"+end_date_s);
- 
+
 		java.util.Date util_start_date;
 		java.util.Date util_end_date;
 		SimpleDateFormat transFormat;
@@ -83,24 +107,24 @@ public class BoardController {
 		session.setAttribute("end_date", null);     //Null값인 경우도 검색어 보존 위해 Session에 저장. 
 		
 		transFormat = new SimpleDateFormat("yyyy-MM-dd"); 
-		if(start_date_s != null) {
-			if(start_date_s.length()>0) { //공백인 경우 제외 (??? 왜썼지?)
-				System.out.println("start_date"+start_date_s);
-				util_start_date = transFormat.parse( start_date_s );
-				start_date = new java.sql.Date(util_start_date.getTime());
-				
-				model.addAttribute("start_date", start_date);
-				session.setAttribute("start_date", start_date); //유효한 값일 경우 다시 set
-			}
+		
+		System.out.println("start_date"+start_date_s);
+		System.out.println("end_date"+end_date_s);
+		
+		if(start_date_s.length() >= 1) {
+			util_start_date = transFormat.parse( start_date_s );
+			start_date = new java.sql.Date(util_start_date.getTime());
+			
+			model.addAttribute("start_date", start_date);
+			session.setAttribute("start_date", start_date); //유효한 값일 경우 다시 set	 
 		}
-		if(end_date_s != null) {
-			if(end_date_s.length()>0) {
-				System.out.println("end_date"+end_date_s);
-				util_end_date =  transFormat.parse( end_date_s );
-				end_date =   new java.sql.Date(util_end_date.getTime());
-				model.addAttribute("end_date", end_date);
-				session.setAttribute("end_date", end_date); 
-			}
+
+		if(end_date_s.length()>=1) {
+			
+			util_end_date =  transFormat.parse( end_date_s );
+			end_date =   new java.sql.Date(util_end_date.getTime());
+			model.addAttribute("end_date", end_date);
+			session.setAttribute("end_date", end_date); 
 		}
 
 		model.addAttribute("search_keyword", search_keyword);
@@ -161,7 +185,7 @@ public class BoardController {
 		// Model을, Service 객체에 던짐.
 		// 서비스에 넣을 모델에는 리퀘스트 객체가 이미 있다.(리퀘스트 객체에는 id값이 있다)
 		
-		System.out.println("view 호출");
+		System.out.println("view 호출");	
 		return "view";
 	} 
 	
@@ -182,26 +206,7 @@ public class BoardController {
 		// 글 작성 후 session객체에 저장된 파라미터 들고 오기 위해
 		
 		// 리다이렉트 시킬 때 
-		request.setCharacterEncoding("UTF-8");
-		HttpSession session = request.getSession(); 
-		PageMaker page_maker;
-		page_maker = (PageMaker) session.getAttribute("page_list_maker");
-		
-		String pageNO;
-		String search_text = (String) session.getAttribute("search_text");
-		String search_type = (String) session.getAttribute("search_type");
-		Date start_date = (Date) session.getAttribute("start_date");
-		Date end_date   = (Date) session.getAttribute("end_date");
-		 
-		System.out.println("보존 검색어??"+search_text);
-		String encode_search_text = URLEncoder.encode(search_text, "UTF-8");
-		
-		
-		String return_url = "redirect:list?pageNO="+((page_maker.getStartPage()) -1)+
-				"&search_text="+encode_search_text + "&search_type="+search_type+
-				"&start_date="+start_date + "&end_date="+end_date;
-		System.out.println("redirect_url + " + return_url);
-		
+		String return_url = make_search_url(request);
 		return return_url; 
 	}
 	
@@ -216,29 +221,8 @@ public class BoardController {
 		
 		/* redirect */
 		
-		request.setCharacterEncoding("UTF-8");
-		HttpSession session = request.getSession(); 
-		
-		PageMaker page_maker;
-		page_maker = (PageMaker) session.getAttribute("page_list_maker"); 
-
-		/* 검색 시 redirect 위해서.*/ 
-		String pageNO;
-		String search_text = (String) session.getAttribute("search_text");
-		String search_type = (String) session.getAttribute("search_type");
-		Date start_date = (Date) session.getAttribute("start_date");
-		Date end_date   = (Date) session.getAttribute("end_date");
-		 
-		System.out.println("보존 검색어??"+search_text);
-		String encode_search_text = URLEncoder.encode(search_text, "UTF-8");
-
-		
-		String return_url = "redirect:list?pageNO="+((page_maker.getStartPage()) -1)+
-				"&search_text="+encode_search_text + "&search_type="+search_type+
-				"&start_date="+start_date + "&end_date="+end_date;
-		System.out.println("redirect_url + " + return_url);
-		
-		return return_url; 
+		String return_url = make_search_url(request);
+		return return_url; 	
 	}
 	
 	@RequestMapping("/modify_view")
@@ -274,21 +258,7 @@ public class BoardController {
 		page_maker = (PageMaker) session.getAttribute("page_list_maker"); 
 
 		
-		String pageNO;
-		String search_text = (String) session.getAttribute("search_text");
-		String search_type = (String) session.getAttribute("search_type");
-		Date start_date = (Date) session.getAttribute("start_date");
-		Date end_date   = (Date) session.getAttribute("end_date");
-		 
-		System.out.println("보존 검색어??"+search_text);
-		String encode_search_text = URLEncoder.encode(search_text, "UTF-8");
-
-		
-		String return_url = "redirect:list?pageNO="+((page_maker.getStartPage()) -1)+
-				"&search_text="+encode_search_text + "&search_type="+search_type+
-				"&start_date="+start_date + "&end_date="+end_date;
-		System.out.println("redirect_url + " + return_url);
-		
-		return return_url; 
+		String return_url = make_search_url(request);
+		return return_url; 	
 	}
 }

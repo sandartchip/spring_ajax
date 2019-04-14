@@ -1,59 +1,64 @@
 <?xml version="1.0" encoding="UTF-8"?> <!--  2.5로 되있으면 el구문 적용 안됨 -->
 
 <web-app>
-	<display-name>Spring JavaConfig Sample</display-name> 
+	<display-name>Spring JavaConfig Sample</display-name>   
+	
+	<!--  Dispatcher Servlet 세팅  -->
 	
 	<servlet>
-		<servlet-name>mvc</servlet-name>
+		<servlet-name>dispatcher</servlet-name>
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
 		
-		<!-- 이런 설정을 해 줘야 	Spring에서 제공하고 있는 Dispatcher servlet이 FrontController의  역할을 하게 된다. -->
-		<init-param>
-			<param-name>contextClass</param-name>
-			<param-value>org.springframework.web.context.support.AnnotationConfigWebApplicationContext</param-value>
-		</init-param>
-		<!-- 빈 공장이 있어야 한다. 그게 ApplicationContext. 우리가 컨택스트 클래스를 사용할 때 ApplicationContext를 사용할거라고 명시.  -->
-		
-		<init-param>
-			<param-name>contextConfigLocation</param-name>
-			<param-value>kr.or.connect.mvcexam.config.WebMvcContextConfiguration</param-value>
-			<!--  실제로 어떤 이릉ㄹ 할 건지 여기에다가 알려준다. -->
-			<!-- 해당 Dispatcher Servlet이 실행될 때 설정들을 읽어야 하는데 -->
-			<!--  그래서 아까 만들었던 설정들을 읽게 하기 위해 init-param으로 설정 (아까 만든 WebMvcContextConfiguration 클래스를 등록 -->
-			<!--  클래스 등록할 때는 패키지 명을 포함해서. -->
-		</init-param>
+		<!-- 
+			<init-param>
+				<param-name>contextConfigLocation</param-name>
+				<param-value>/WEB-INF/spring/applicationContext.xml</param-value>
+			</init-param>
+		-->
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 	
 	<servlet-mapping>
-		<servlet-name>mvc</servlet-name>
+		<servlet-name>dispatcher</servlet-name>
 		<url-pattern>/</url-pattern>
-		<!--  url이 "/"하고 요청이 들어오면  servlet-name이랑 같은 서블릿에 등록되어 있는 서블릿 클래스가 실행되어라-->
-		<!--  즉 어떤 요청이 들어오든 이 서블릿이 실행된다. -->
-		<!--  servlet-name이 mvc인 이름을 찾아가서  -->
-		<!--  Spring이 제공하고 있는 Dispatcher Servlet, 이것을 front controller로 한다. -->
 	</servlet-mapping>
 	
+	
+	<!-- resources/*로 요청오면 디폴트 서블릿으로 보냄. -->
+	<servlet-mapping>
+		<servlet-name>default</servlet-name>
+		<url-pattern>/resources/*</url-pattern>
+	</servlet-mapping>
+
+	<!-- Request Parameter를 UTF-8로 변경하기 위한 필터 -->
+	
+	<!-- MultipartFilter 적용 -->
+	<filter>
+	    <filter-name>MultipartFilter</filter-name>
+	    <filter-class>org.springframework.web.multipart.support.MultipartFilter</filter-class>
+	</filter>
+	<filter-mapping>
+	    <filter-name>MultipartFilter</filter-name>
+	    <url-pattern>/*</url-pattern>
+	</filter-mapping>
+
 	<filter>
 	  <filter-name>encodingFilter</filter-name>
 	  <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+	
 	  <init-param>
 	    <param-name>encoding</param-name>
 	    <param-value>UTF-8</param-value>
 	  </init-param>
-	   <init-param>
+	
+	  <init-param>
 	    <param-name>forceEncoding</param-name>
 	    <param-value>true</param-value>
 	   </init-param>
-	</filter>
+	</filter>  
+	
 	<filter-mapping>
 	  <filter-name>encodingFilter</filter-name>
 	  <url-pattern>/*</url-pattern>
 	 </filter-mapping>
-
-	
-
 </web-app>
-
-
-<!--  이 부분을 추가 해야 Spring이 제공하는 Dispatcher Servlet이 실제 FrontController의 역할을 할 수 있을 것이다 -->

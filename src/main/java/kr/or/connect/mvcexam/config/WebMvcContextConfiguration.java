@@ -1,6 +1,7 @@
 package kr.or.connect.mvcexam.config;
 
 import org.springframework.context.annotation.Bean;
+
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
@@ -21,7 +22,7 @@ public class WebMvcContextConfiguration extends WebMvcConfigurerAdapter{
         registry.addResourceHandler("/css/**").addResourceLocations("/css/").setCachePeriod(31556926);
         registry.addResourceHandler("/img/**").addResourceLocations("/img/").setCachePeriod(31556926);
         registry.addResourceHandler("/js/**").addResourceLocations("/js/").setCachePeriod(31556926);
-        /* img, js로 오는 요청은 여기서 처리. */
+        /* img, js로 오는 요청은 여기서 처리. (디스패처 서블릿으로 보내지 않는다.) */
     }
 	
 	
@@ -41,6 +42,7 @@ public class WebMvcContextConfiguration extends WebMvcConfigurerAdapter{
     		//컨트롤러 클래스를 작성하지 않고 매핑할 수 있게 해주는거 (디폴트 view)
     		//view name은 ViewResolver로 찾아옴
     }
+    
     
     @Bean
     public InternalResourceViewResolver getInternalResourceViewResolver() {

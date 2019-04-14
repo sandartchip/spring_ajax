@@ -43,14 +43,14 @@
 				<h1>Board</h1>
 			</div>
 			<div class="content_container">
-				<form action="write" method="post" onsubmit="return formCheck();"> 
+				<form action="write" method="post" onsubmit="return formCheck();" enctype="multipart/form-data">  
 					<table class="table table-bordered table-hover active">
 						<tbody>
 							<tr>
 								<td class="t_header">제목</td>
 								<td class="t_body"> 
-									<input type="text" name="title" style="width:100%"/> 
-									<input type="hidden" name="writer" value="${userId}">
+									<input type="text" name="title" style="width:100%" value="ggg"/> 
+									<input type="hidden" name="writer" value="${userId}"> 
 								</td>
 							</tr>
 							<tr>
@@ -59,8 +59,16 @@
 									<textarea type="text" 
 											cols="40" 
 											name="content" 
-											style="height:490px; width:100%">
+											style="height:490px; width:100%;">
+											내용내용내용ㅇ
 									</textarea> 
+								</td>
+							</tr>
+							<tr>
+								<td class="t_header">첨부 파일</td>
+								<td class="t_body">
+									
+									<input type="file" id="file1" name="file" style="padding-bottom:10px">
 								</td>
 							</tr>
 						</tbody>

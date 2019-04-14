@@ -82,8 +82,12 @@
 						<td class="t_body">${content.writer}</td>
 					</tr>
 					<tr>
-						<td class="t_header" style="height:400px">글 내용</td>
+						<td class="t_header" style="height:300px">글 내용</td>
 						<td class="t_body">${content.content}</td>
+					</tr>
+					<tr>
+						<td class="t_header">첨부 파일</td>
+						<td class="t_body">       </td>
 					</tr>
 					<tr>
 						<td class="t_header">등록 일자</td>

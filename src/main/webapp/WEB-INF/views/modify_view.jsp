@@ -45,12 +45,18 @@
 							</tr>
 							<tr>
 								<td class="t_header">글 내용</td>
-								<td class="t_body" style="height:500px">
+								<td class="t_body" style="height:500px;">
 									<textarea type="text" 
 											name="content" 
 											style="height:490px; width:100%;">${content.content}
 									</textarea>
 								</td>	
+							</tr>
+							<tr>
+								<td class="t_header">첨부된 파일</td>
+								<td class="t_body" style="height:100px;">
+									
+								</td>
 							</tr>
 						</tbody>
 					</table>
@@ -68,7 +74,7 @@
 								onclick="location.href='list?pageNO=${page_index}&search_text=${search_text}&search_type=${search_type}&start_date=${start_date}&end_date=${end_date}'">CANCEL</button>
 					</div>
 				</form>
-			</div>
+			</divF>
 		</div>
 		
 		<script>
