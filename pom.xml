@@ -3,7 +3,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>kr.or.connect</groupId>
-  <artifactId>mvcexam2</artifactId>
+  <artifactId>mvcexam3</artifactId>
   <packaging>war</packaging>
   
   <version>0.0.1-SNAPSHOT</version>
@@ -14,15 +14,38 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   	<spring-version>4.3.14.RELEASE</spring-version>
+  	<jackson-version>2.9.4</jackson-version>
   </properties>
   
   
   
-  
-  
-  <dependencies>
+  <dependencies> 
+ 
+  <dependency>
+	    <groupId>com.fasterxml.jackson.core</groupId>
+	    <artifactId>jackson-databind</artifactId>
+	    <version>${jackson-version}</version>
+	</dependency>
+	
+	<dependency>
+	    <groupId>com.google.code.gson</groupId>
+	    <artifactId>gson</artifactId>
+	    <version>2.2.4</version>
+	</dependency>
+	
+	<dependency>
+	    <groupId>com.fasterxml.jackson.core</groupId>
+    	<artifactId>jackson-core</artifactId>
+    	<version>${jackson-version}</version>
+	</dependency>
+	
+	<dependency>
+	    <groupId>com.fasterxml.jackson.core</groupId>
+	    <artifactId>jackson-annotations</artifactId>
+	    <version>${jackson-version}</version>
+	</dependency>
+	<!-- log -->	
 
-	 
     <dependency>
         <groupId>log4j</groupId>
         <artifactId>log4j</artifactId>

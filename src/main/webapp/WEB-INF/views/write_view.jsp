@@ -37,13 +37,16 @@
 		model.addAttribute로     request 객체를 넣어줌
 		
 		해당 리퀘스트  객체를 BWriteCommand에서 받는다. -->
+		
+	
 	<body>
 		<div class="container">
 			<div class="page-header">
 				<h1>Board</h1>
 			</div>
 			<div class="content_container">
-				<form action="write" method="post" onsubmit="return formCheck();" enctype="multipart/form-data">  
+				<form action="write" method="post" onsubmit="return formCheck();" 
+				      enctype="multipart/form-data">  
 					<table class="table table-bordered table-hover active">
 						<tbody>
 							<tr>
@@ -68,7 +71,7 @@
 								<td class="t_header">첨부 파일</td>
 								<td class="t_body">
 									
-									<input type="file" id="file1" name="file" style="padding-bottom:10px">
+									<input type="file" id="file1" name="file1" style="padding-bottom:10px">
 								</td>
 							</tr>
 						</tbody>

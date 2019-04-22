@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 
-<!-- 파일 업로드에 필요한 Bean -->    
-<beans:bean id="uploadPath" class="java.lang.String">
-	<beans:constructor-arg value="C:\spring_file"></beans:constructor-arg>
-</beans:bean>
-
-
 <!--
 
-실제로 데이터베이스에 저장할 값은 이미s지 경로이며 이미지 파일은 uploadPath 빈에서 지정해준 경로에 저장이된다.
- 
- -->
+controller도 view에 관련된 bean이기 때문에 
+
+servlet-context.xml에서 관리한다. 
+-->
+
+<web-app>
+	
+	<!-- 파일을 업로드 할 때 그 파일이 저장될 실제 위치. -->
+	<beans:bean id="uploadPath" class="java.lang.String">
+		<beans:constructor-agr value="C:\\spring_file"></beans:constructor-agr>
+	</beans:bean>
+	 
+</web-app>

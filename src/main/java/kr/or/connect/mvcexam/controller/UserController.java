@@ -1,7 +1,5 @@
 package kr.or.connect.mvcexam.controller;
 
-import java.io.UnsupportedEncodingException;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.stereotype.Controller;
@@ -17,7 +15,7 @@ import kr.or.connect.mvcexam.command.ULogoutCommand;
 public class UserController {
 	 
 	UCommand command;
-	 
+	
 	
 	@RequestMapping("/login")
 	public String login(HttpServletRequest request, Model model,
@@ -40,7 +38,7 @@ public class UserController {
 		command = new ULoginCommand();
 		command.execute(request, model);
 		
-		return "redirect:list"; 
+		return "redirect:list2"; 
 	}
 	
 	@RequestMapping("/logout")
@@ -49,6 +47,6 @@ public class UserController {
 		command = new ULogoutCommand();
 		command.execute(request, model);
 		
-		return "redirect:list";
+		return "redirect:list2";
 	}
 }

@@ -8,7 +8,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList; 
+import java.util.ArrayList;
+
+import org.springframework.ui.ModelMap;
+import org.springframework.web.multipart.MultipartFile;
+
 import kr.or.connect.mvcexam.vo.BoardVO;
 import kr.or.connect.mvcexam.vo.Criteria;
 
@@ -68,8 +72,9 @@ public class BoardDAO {
 		System.out.println("total count = "+ totalCount);
 		return totalCount;
 	}
+	public ArrayList<BoardVO> search_page
 	
-	public ArrayList<BoardVO> search_page(String keyword, String search_type, Date start_date, Date end_date, Criteria page_info) throws SQLException{
+	(String keyword, String search_type, Date start_date, Date end_date, Criteria page_info) throws SQLException{
 		Connection conn = null; 
 		PreparedStatement page_pstmt=null; //sql쿼리문이 아니라 DB랑 쿼리문 연결시켜준 Object.
 		ArrayList<BoardVO> vo_list= new ArrayList<BoardVO>();
@@ -86,6 +91,8 @@ public class BoardDAO {
 		
 		
 		start_content_num = (curPageNum-1) * pagePerNum; 
+		// 이게 일반페이지이 일 땐 이 공식인데
+		// ajax방식일 땐 무조건 1이어야..
 		
 		page_list_sql = "SELECT * FROM board_table WHERE regDate between DATE(?) and DATE(?)+1 "
 				+ "and title LIKE ? "
@@ -152,6 +159,7 @@ public class BoardDAO {
 		
 		
 		start_content_num = (curPageNum-1) * pagePerNum; 
+		//start_content_num=1;
 
 		page_list_sql = 		
 				"SELECT * FROM board_table "
@@ -215,6 +223,8 @@ public class BoardDAO {
 		// 하지만 검색에 따라 고려되어야 할 듯.
 		
 		start_content_num = (curPageNum-1) * pagePerNum;
+		//start_content_num=1;
+		
 		
 		try {
 			conn = this.getConnection();
@@ -296,6 +306,7 @@ public class BoardDAO {
 					
 					System.out.println("검색후 찾은 데이터 = "+data.getTitle());
 				}
+				
 			}  
 			
 			// 제목에 ~를 포함하면서
@@ -443,7 +454,34 @@ public class BoardDAO {
 		return content_vo;
 	}
 	
-	public void write(String title, String content, String writer) {
+	public void file_write(MultipartFile file) {
+
+		int cur_content_idx=0;
+		
+		conn = this.getConnection(); 
+		String file_name = file.getOriginalFilename();
+		
+		
+		try {
+			cur_content_idx = this.totalCount();
+			// 현재  전체 데이터 갯수 = insert 할 board_idx 이다.
+			//1번 2번 3번까지 게시글 입력->3번에 파일 넣어야
+			// 파일이 추가 될 게시글 index = 방금 게시글 입력한 게시글 index = 게시글의 갯수
+		} catch (SQLException e1) { 
+		} //아까 등록한 게시물의 index 들고 오기.
+		try {
+			String file_upload_sql = "INSERT INTO fileTable (board_idx, file_name) values(?,?)";
+			pstmt = conn.prepareStatement(file_upload_sql);
+			
+			pstmt.setInt(1, cur_content_idx);
+			pstmt.setString(2, file_name);
+			
+			pstmt.executeUpdate();
+		} catch(SQLException e) {
+		}
+	}
+	
+	public void text_write(String title, String content, String writer) {
 		PreparedStatement pstmt = null;
 		
 		long time = System.currentTimeMillis();
@@ -453,11 +491,12 @@ public class BoardDAO {
 		
 		regDate=modDate=str; 
 		//날짜 등록. 
+				
+		conn = this.getConnection(); 
 		
-		String insert_sql = "INSERT INTO board_table (title, content, regDate, modDate, writer) values(?,?,?,?,?)";
-						
 		try {
-			conn = this.getConnection();
+			String insert_sql = "INSERT INTO board_table (title, content, regDate, modDate, writer) values(?,?,?,?,?)";
+		
 			pstmt = conn.prepareStatement(insert_sql);
 			//sql 쿼리
 			pstmt.setString(1, title);
@@ -466,9 +505,11 @@ public class BoardDAO {
 			pstmt.setString(4, modDate);
 			pstmt.setString(5, writer);
 			pstmt.executeUpdate();   
-		} catch (SQLException e1) { 
-			e1.printStackTrace();
-		}
+		} catch (SQLException e1) {  
+		} // 첨부 파일 제외 write 처리 기능 
+		
+		/* 파일 첨부 관련 처리 */
+		// 아까 등록한 게시물의 index를 들고 와서 (auto increment id, content_id, file name)을 insert한다.		 
 	}
 	
 	public void modify(String content_id, String title, String content) {

@@ -12,14 +12,16 @@ import org.springframework.ui.Model;
 import kr.or.connect.mvcexam.dao.BoardDAO;
 import kr.or.connect.mvcexam.vo.BoardVO;
 import kr.or.connect.mvcexam.vo.Criteria;
-import kr.or.connect.mvcexam.vo.PageMaker;
  
 public class BListCommand extends HttpServlet implements BCommand  {
 	private static final long serialVersionUID = 1L;
-	ArrayList<BoardVO> vo_list; 
-    
+	ArrayList<BoardVO> vo_list;
+
+	
     @Override
     public void execute(Model model) {
+    	
+    	System.out.println(" ---- list로 진입 ----");
     	
     	// list 부르면 -> 하단에 페이지 리스트 까지 동시에 계산한다. 
     	
@@ -31,7 +33,6 @@ public class BListCommand extends HttpServlet implements BCommand  {
     	
     	//currentPageNum;
     	Map<String, Object> model_map = model.asMap();
-
     	
     	Criteria cur_page_info = (Criteria) model_map.get("pageVO"); //모델에서 Criteria형의 pageVO 객체 가져 온다.
     	String search_keyword = (String) model_map.get("search_keyword"); 
@@ -67,14 +68,17 @@ public class BListCommand extends HttpServlet implements BCommand  {
 		}
     	
     	BoardDAO dao = new BoardDAO();
-    	ArrayList<BoardVO> vo_list;
-    	
+    	ArrayList<BoardVO> vo_list = new ArrayList<BoardVO>();
     	int total_row_count;
 
     	try {
     		if(search_type.equals("content") || search_type.equals("title")) {
     			vo_list = dao.search_page(search_type, search_keyword, cur_page_info);
+    	
+    			//model.addAttribute("list_type", "ajax_type");
     			model.addAttribute("list_item", vo_list);   //DAO를 통해 DB처리한 데이터 받아와서 모델에 넣음.
+    			
+    			//vo_list를 넣는게 아니라 JSON String을 받아 와야 함.
     		}
     		else if(search_type.equals("date")) { 
     			try {
@@ -86,14 +90,16 @@ public class BListCommand extends HttpServlet implements BCommand  {
     			vo_list = dao.search_page(search_keyword, search_type, start_date, end_date, cur_page_info);
     			model.addAttribute("list_item", vo_list);
     		}
-			
+  
+    		// 검색 파라미터에 관계 없이 model에 JSON을 넣어서 전달한다.
+    		
+    		
 			if(search_keyword.length()==0 && !search_type.equals("date")) 	{ //검색 키워드 없는 경우.
 				total_row_count = dao.totalCount();
 			}
 			else {
 				if(search_type.equals("date")) //날짜만 
 					total_row_count = dao.search_totalCount(start_date, end_date);
-				//
 				
 				else if(search_type.equals("content") || search_type.equals("title")){ // 키워드만
 					total_row_count = dao.search_totalCount(search_keyword);

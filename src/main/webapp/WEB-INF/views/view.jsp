@@ -87,7 +87,7 @@
 					</tr>
 					<tr>
 						<td class="t_header">첨부 파일</td>
-						<td class="t_body">       </td>
+						<td class="t_body">    </td>
 					</tr>
 					<tr>
 						<td class="t_header">등록 일자</td>
