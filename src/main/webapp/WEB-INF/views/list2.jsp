@@ -58,20 +58,25 @@
 	
 	console.log("hihi");
 	var search_form; //JS의 전역 변수
+	var page_input_element;
 	
 	
 	console.log("search form"+search_form);
 	var pageNo = 1;
 
-	function make_jquery_ajax(pageNo, formData){ //Document.ready 로 DOM Element 모두 로딩된 이후에만 호출 됨.
+	function make_jquery_ajax(pageNo){ //Document.ready 로 DOM Element 모두 로딩된 이후에만 호출 됨.
+		
 		var url_str = "${pageContext.request.contextPath}/list2"; 
-		//검색어 없는 경우까지 전부 고려되어 있는 URL 쿼리 
-		console.log("ajax로 넘어온 formdata"+formData);
+		
+		// HTML search form element 가져오기
+		// form element의 요소에 pageNo 넣기
+		
+		var page_inputbox_element = document.getElementById("page_number");
+		page_inputbox_element.value = pageNo.toString();
 		
 		var params = jQuery("#search_form").serialize();
-		//입력된 모든 element를 문자열의 데이터에 serialize한다.
-		console.log("넘어갈 파라미터"+params);
-		
+		//검색어 없는 경우까지 와 페이지 정보까지 전부 고려되어 있는 URL 쿼리 
+
 		$.ajax({
 			url: url_str,
 			data : params, //data sent to the server
@@ -79,7 +84,7 @@
 			//processData : false,
 			//contentType: false,
 			method: "POST", //요청이 제대로 왔을까? 어디서??? 
-			success:function (result) { //제어권 X
+			success:function (result) { //제어권 나에게 없음 . 컨트롤러가 가짐.
 				
 				var str = "";
 				console.log("게시글 리스트"+ result.board_list);
@@ -103,31 +108,30 @@
 					str += '<td>' + data.writer + '</td>';
 					str += '</tr>';
 				}); 
-				 
 				// 현재 페이지 정보  & 현재 페이지에 따른 게시글  list의 정보가 넘어옴
 				
-				$(".board_content_list").append(str);
+				$(".board_content_list").append(str); //이까지는 잘 됨. 
 			},
 			error:function(request, status, error){
 				console.log("error");
 			}
 		}); //end of ajax
-		
 	} // end of make ajax function
 	$(document).ready(function(){ // document.ready
 		
 		search_form = document.getElementById('search_form');
 		console.log("search form" + search_form);
 		
-		var formData;
-		formData = new FormData(search_form);
-
-		var pageNo_str = pageNo.toString();
-		formData.append('pageNO', pageNo_str);
-		// AJAX로 폼 전송을 가능케 해주는 formdata 객체
-		console.log("form data"+ formData);
+		//var formData;
+		//formData = new FormData(search_form);
+		//formData.append('pageNO', pageNo_str);
+		//var pageNo_str = pageNo.toString();
 		
-		make_jquery_ajax(pageNo, formData); // 초기 리스트 만들기.
+		// AJAX로 폼 전송을 가능케 해주는 formdata 객체
+		//console.log("form data"+ formData);
+		
+		make_jquery_ajax(pageNo); // 초기 리스트 만들기.
+		// document.ready와 함께 ajax 요청은 계속 성립되고 있지 않나? 굳이 또 호출 안해도. 
 		
 		$("#moreBtn").click(function(){ 
 			pageNo++;
@@ -135,14 +139,28 @@
 			make_jquery_ajax(pageNo);
 			console.log("페이지번호 : " +pageNo);
 		});
+		
 		$("#searchBtn").click(function(){
 			
+			/*
+				form 처리를 위한 영역 
+			*/
+			var params = jQuery("#search_form").serialize();
+			//입력된 모든 element를 문자열의 데이터에 serialize한다.
+			console.log("넘어갈 파라미터"+params);
+			// AJAX로 리스트 들고 올 때만 pageNo 필요하니까
+			page_input_element = document.getElementById("page_number");
+			console.log("page input element"+page_input_element);
+			
+			page_input_element.value=pageNo;
+			 
 			pageNo = 1; //검색-> 리스트초기화
 			
 			make_jquery_ajax(pageNo);
-			
+			 
 			$(".board_content_list").empty();
-
+			// get 요청 위해 list2 리로드.....
+			
 			console.log("페이지번호 : " +pageNo);
 		});	
 	}); //end of jquery document.ready 
@@ -225,7 +243,7 @@
 		 	 	
 	 	<!--  검색 관련  box -->
 	 	<div class="search_box" style="text-align:center">
-	 		<form action="list2" id="search_form" method="POST">
+	 		<form action="list2" id="search_form" method="POST" name="search_form">
 		 		<select name="search_type">
 			 		<option value="title"> 제목 </option>
 			 		<option value="content"> 내용 </option>
@@ -241,6 +259,7 @@
 		 		
 		 		<input type="date" name="start_date" class="start_date_input" value="${start_date}"/>
 			 	<input type="date" name="end_date" class="end_date_input" value="${end_date}"/>	
+			 	<input type="hidden" name="pageNO" id = "page_number" value="1"/>
 	 		</form> 
 	 	</div>
 	 	

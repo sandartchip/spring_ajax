@@ -48,7 +48,7 @@ public class BoardAjaxController  {
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value="/list2", method=RequestMethod.POST)
 	public @ResponseBody Map<String, Object> print_list(
-			@RequestParam HashMap<String, String> paramMap, 
+			@RequestParam HashMap<String, String> paramMap, //HashMap은 중복 허용X
 			HttpServletRequest request, Model model) 
 			throws ParseException, UnsupportedEncodingException { //필요한 데이터 넘기기 위해 model 객체를 파라미터로 넘겨준다.
 		
@@ -58,10 +58,13 @@ public class BoardAjaxController  {
 		request.setCharacterEncoding("UTF-8");
 		
 		//String search_keyword = request.getParameter("search_text"); 
-		String search_keyword = paramMap.get("search_text"); 
+		String search_keyword =  paramMap.get("search_text"); 
 		
-		//String pageNo = request.getParameter("pageNO");
-		String pageNo = paramMap.get("pageNO"); 
+		//String pageNo_str = request.getParameter("pageNO");
+		String pageNo_str = paramMap.get("pageNO");
+
+		System.out.println(pageNo_str);
+		Integer pageNo = Integer.parseInt(pageNo_str); 
 
 		// page number를 .
 		
@@ -79,18 +82,13 @@ public class BoardAjaxController  {
 		String start_date_s = paramMap.get("start_date")==null? "":paramMap.get("start_date");
 		
 //		String end_date_s = request.getParameter("end_date")==null?"":request.getParameter("end_date");
-		String end_date_s = paramMap.get("end_date")==null? "":paramMap.get("end_date");
-		
-		
-		if(pageNo==null || pageNo.length()==0) {
-			pageNo="1";
-			System.out.println("no number");
-		}
+		String end_date_s = paramMap.get("end_date")==null? "":  paramMap.get("end_date");
+
 		if(search_keyword==null) search_keyword="";
 		else {
 			if(search_keyword.length()>0) {
 		//		URLDecoder.decode(request.getParameter("search_text"), "UTF-8");
-				URLDecoder.decode(paramMap.get("search_text"), "UTF-8");
+				URLDecoder.decode(search_keyword, "UTF-8");
 			}
 		}
 		if(search_type==null) search_type=""; // 초기호출. 파라미터 없을 때
@@ -128,12 +126,16 @@ public class BoardAjaxController  {
 		model.addAttribute("search_type", search_type);
 		
 		session.setAttribute("search_text", search_keyword);
-		session.setAttribute("search_type", search_type);
-
+		session.setAttribute("search_type", search_type); 
 		
 		// 가장 처음에 접속했을 땐 페이지 정보가 없다-> pageNO=1로 미리 셋팅 후 PageMaker 만든다.
 		
-		int pageNumber = Integer.parseInt(pageNo);
+		if(pageNo==null || pageNo==0) {
+			pageNo=1;
+			System.out.println("no number");
+		}
+		
+		int pageNumber = pageNo;
 		
 		/* 페이지 만들기 */
 		
@@ -165,15 +167,13 @@ public class BoardAjaxController  {
 		ArrayList<BoardVO> vo_list = new ArrayList<BoardVO>(); 
 		vo_list = (ArrayList<BoardVO>) model_map.get("list_item");
 		
-		
 		Map <String, Object> map = new HashMap<>();
 		
 		map.put("board_list", vo_list);
 		map.put("page_maker", page_list_maker);
 		
-		return map; // 리스트와 페이지 정보 라는 다른 type의 데이터를 같이 넘겨야해서 map을 쓰는 수 밖에 
-		// 없음.
-		
+		return map; // 리스트와 페이지 정보 라는 다른 type의 데이터를 같이 넘겨야해서 map을 쓰는 수 밖에 없음.
+			
 		// Controller가 지정한 view 파일명. ->
 		// web.xml->WebMvcContextConfiguration
 		// ->list.jsp 로 페이지 page listMaker 보낸다.	

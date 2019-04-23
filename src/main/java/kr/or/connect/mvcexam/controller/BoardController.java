@@ -324,7 +324,8 @@ public class BoardController {
 		// web.xml->WebMvcContextConfiguration
 		// ->list.jsp 로 페이지 page listMaker 보낸다.	
 	}
-	@RequestMapping("/view")
+	
+	//@RequestMapping("/view")
 	public String content_view(HttpServletRequest request, Model model) {  
 		
 		System.out.println("content view");
@@ -342,13 +343,13 @@ public class BoardController {
 		return "view";
 	} 
 	
-	@RequestMapping("/write_view")
+	//@RequestMapping("/write_view")
 	public String write_view(Model model) {
 		System.out.println();
 		return "write_view";
 	} 
 	
-	@RequestMapping("/write")
+	//@RequestMapping("/write")
 	public String write(MultipartHttpServletRequest request, Model model) throws UnsupportedEncodingException {
 		
 		// HttpServletRequest의

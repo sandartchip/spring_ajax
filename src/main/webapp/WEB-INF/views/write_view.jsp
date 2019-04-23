@@ -71,7 +71,7 @@
 								<td class="t_header">첨부 파일</td>
 								<td class="t_body">
 									
-									<input type="file" id="file1" name="file1" style="padding-bottom:10px">
+									<input type="file" id="file1" name="file" style="padding-bottom:10px">
 								</td>
 							</tr>
 						</tbody>
@@ -79,7 +79,7 @@
 					
 					<div class="footer" style="text-align:center">
 						<button class="btn btn-lg btn-default btn-sm cancel_btn"
-							type="button" style="text-align:center" onclick="location.href='list'">CANCEL</button>
+							type="button" style="text-align:center" onclick="location.href='list2'">CANCEL</button>
 						<button class="btn btn-lg btn-default btn-sm save_btn"
 							type="submit" style="text-align:center">SAVE</button>
 					</div>
